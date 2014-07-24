@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Backform</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+    
+    <script src="3rd/jquery.min.js" type="text/javascript"></script>
+    <script src="3rd/bootstrap.min.js" type="text/javascript"></script>
+    <link href="3rd/bootstrap.min.css" rel="stylesheet" type="text/css" charset="utf-8">
+
+    <script src="3rd/bootstrap-datepicker.js" type="text/javascript"></script>
+    <link href="3rd/bootstrap-datepicker.css" rel="stylesheet" type="text/css" charset="utf-8">
+    
+    <script src="3rd/underscore.js" type="text/javascript"></script>
+    <script src="3rd/backbone.js" type="text/javascript"></script>
+    
+    <script src="src/backform.js" type="text/javascript"></script>
+
+    <script src="example.js" type="text/javascript"></script>
+    
+    <style>
+      header.navbar-inverse {border-radius: 0;}
+      footer.navbar-default {border-radius: 0; margin-bottom: 0;}
+      .shiftable-collection-item {padding: 10px; text-align: center; height: 160px; border: 1px solid #999; margin-right: 10px;}
+      .shiftable-collection-item:hover, .shiftable-collection-item.selected {background-color: #ddd;}
+      .shiftable-collection img {max-width: 100%; max-height: 100px;}
+    </style>
+  </head>
+  <body>
+    <header class="navbar navbar-inverse">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#">Backforms</a>
+      </div>
+      <div class="collapse navbar-collapse" id="navbar-collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="#Introduction">Introduction</a></li>
+          <li><a href="#Documentation">Documentation</a></li>
+          <li><a href="#Bootstrap">Bootstrap Markup</a></li>
+        </ul>
+      </div>
+    </header>
+    <div class="container">
+      <div class="row">
+        <div class="col-md-12">
+          <h1 id="Introduction">Introduction</h1>
+          <p>
+            Backform takes a Backbone model and transforms it into an HTML form with Bootstrap markup.
+            Any changes to the form are relfected back to the model and vice versa.
+            It comes with built-in controls for input, select, radio buttons and checkbox.
+            Backform controls are Backbone views and extensible.
+            Backform even supports nested objects.
+          </p>
+          <h2>Example</h2>
+          <p>A Backform to edit a person. The address is a nested object. Change to see the Backbone model updated (right).</p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6">
+          <form id="form" class="form-horizontal"></form>
+        </div>
+        <div class="col-md-6">
+          <pre id="object"></pre>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-12">
+          <h1 id="Documentation">Documentation</h1>
+          <p>
+            Backform consists of Backbone views. A form is a view which contains control groups which are also views. A control group is a view which renders a model attribute and captures user input. it also ensures the model and DOM are always in sync. The philosophy is very similar to <a href="http://backgridjs.com/" target="_blank">Backgrid</a>.
+          </p>
+          <p>
+            These are the important Backform classes:
+          </p>
+          <ul>
+            <li><code>Backform.Form</code>: A Backbone view which represents the FORM element.</li>
+            <li><code>Backform.Field, Backform.Fields</code>: A Form contains a collection of Field models, which define the mapping of a model attribute to a form control.</li>
+            <li><code>Backform.Control</code>: The ancestor class of Backform controls. A Backbone view which represents a control group (<code>.form-group</code> element in Bootstrap). It implements the <code>render</code> and <code>onChange</code> methods required to keep the DOM and model in sync.</li>
+            <li><code>Backform.InputControl, Backform.SelectControl, ...</code>: The controls themselves inheriting from Backform.Control. They can be extended or you can create your own from scratch.</li>
+          </ul>
+          <h2>Basic Usage</h2>
+          <p>
+            To create a form, you instantiate a Backform.Form view. You pass it a definition of fields.
+            A field maps a model attribute to a form control. For example:
+<pre>
+var person = new Backbone.Model({
+  id: 101,
+  firstName: "Martin",
+  lastName: "Drapeau"
+});
+
+var fields = [{
+    name: "id", // The key of the model attribute
+    label: "ID", // The label to display next to the control
+    control: "input", // This will be converted to InputControl and instantiated from the proper class under the Backform namespace
+    disabled: true // By default controls are editable. Here we disabled it.
+  }, {
+    name: "firstName",
+    label: "First name",
+    control: "input"
+  }, {
+    name: "lastName",
+    label: "Last name",
+    control: "input"
+}];
+
+var form = new Backform.Form({
+  el: $("#form"),
+  model: person,
+  fields: fields // Will get converted to a collection of Backbone.Field models
+});
+form.render(); // Backform.*Control views are created for each field and rendered on screen
+</pre>
+          </p>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-12">
+          <h2 id="Fields">Fields</h2>
+          <p>
+            Fields define the mapping between a model attribute and a control used to render and capture user input.
+            When you create your Form, you can pass a list of field definitions, or a collection of Backbone.Field models.
+            Either way, they get converted to a collection of models.
+          </p>
+          <p>
+            A Backform.Field can contain these options (translated to model attributes).
+          </p>
+          <ul>
+            <li><code>name</code>: Key of the model attribute to reference.</li>
+            <li><code>nested</code>: Optional. If the model attribute is an object, nested attribute key to display (and update).</li>
+            <li><code>label</code>: Optional. Control label.</li>
+            <li><code>placeholder</code>: Optional. Control placeholder.</li>
+            <li><code>disabled</code>: Whether the control can be edited. Defaults to false.</li>
+            <li><code>value</code>: Optional. Default value when model is empty.</li>
+            <li><code>control</code>: Control name or class</li>
+          </ul>
+          </p>
+          <p>
+            When you define a field, you can pass the name of the control,
+            or the control class. You can even inline-extend a control.
+            <pre>
+control: "input"
+...
+control: Backform.InputControl
+...
+control: Backform.InputControl.extend({
+    defaults: {
+      type: "email"
+    }
+  })
+</pre>
+          </p>
+          <p>
+            Controls can support extra options. These can directly be passed in the field definition.
+            For example, the input control has an extra option <code>type</code> which defaults to <code>text</code>.
+            You can override this in this way:
+            <pre>
+fields = [{
+  control: "input",
+  type: "email"
+},
+...];
+</pre>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-12">
+          <h2 id="Controls">Controls</h2>
+          <p>
+            Backform comes with many built-in controls. A control is a Backbone view which inherits from Backform.Control.
+            A control is created when the form is rendered.
+            It contains a back-reference to the Backbone.Field model allowing you access to the attribute name, and other options.
+            Built-in controls are:
+          </p>
+          <ul>
+            <li><code>Backform.InputControl</code> (<code>input</code>): A text input. Pass <code>type</code> to change type.</li>
+            <li><code>Backform.TextateaControl</code> (<code>textarea</code>): A textarea.</li>
+            <li><code>Backform.CheckboxControl</code> (<code>checkbox</code>): A single checkbox input with true|false value.</li>
+            <li><code>Backform.BooleanControl</code> (<code>boolean</code>): Alias to Backform.CheckboxControl.</li>
+            <li><code>Backform.SelectControl</code> (<code>select</code>): Select drop-down. Pass <code>options</code> to specify a list of options as <code>[{label:&lt;label&gt;, value:&lt;value&gt;}, ...]</code>.</li>
+            <li><code>Backform.RadioControl</code> (<code>radio</code>): Radio button inputs. Pass <code>options</code> to specify a list of options as <code>[{label:&lt;label&gt;, value:&lt;value&gt;}, ...]</code>.</li>
+            <li><code>Backform.DatepickerControl</code> (<code>datepicker</code>): An input fill with the <a href="http://www.eyecon.ro/bootstrap-datepicker" target="_blank">Boostrap Datepicker plugin</a>.</li>
+            <li><code>Backform.SubmitButtonControl</code> (<code>submit-button</code>): A submit button. Pass <code>type</code> to change button type.</li>
+          </ul>
+          <p>
+            In the case you want to extend a control, or create your own from scratch, this is the anatomy of the Backform.InputControl view:
+            <pre>
+var InputControl = Backform.InputControl = Control.extend({
+  defaults: { // Extra options that can be passed in the field defition.
+    type: "text"
+  },
+  template: ..., // An underscore template containing the markup (see the code)
+  events: {
+    "change input": "onChange", // Transfer value from the DOM to the model
+    "focus input": "clearInvalid" // Clear any errors when the user clicks inside the input (see invalid markup section)
+  },
+  getValueFromDOM: function() { // How the value is fetched from the DOM
+    return this.$el.find("input").val();
+  }
+});
+</pre>
+          </p>
+          <p>
+            Since you have a reference to the field, you can pick up any control options defined in the control class <code>defaults</code>.
+            You can therefore, for example, define an input of type email this way:
+          </p>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-12">
+          <h2 id="Validation">Validation</h2>
+          <p>
+            Backform can render error validation markup à la Bootstrap.
+            It does not leverage the Backbone model <code>validation</code> and <code>isValid</code> methods, nor does it perform client-side validation, field by field.
+            Instead, it allows you to keep another model with errors that get rendered on the form.
+            This is useful for back-end validation whereby the result of a 4xx HTTP error would contain a mapping of attribute-errors.
+          </p>
+          <p>
+            Backform.Form accepts an optional <code>errorModel</code>. It should contain the same attributes as the original <code>model</code> but with error messages as values. The form will automatically listen for changes on the <code>errorModel</code> to display the errors. You need only set the invalid attribute with an appropriate error message and for it to be displayed.
+          </p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12">
+          <h3>Example</h3>
+          <form id="form2" class="form-horizontal"></form>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12">
+          <h3>Code</h3>
+<pre>
+var model = new Backbone.Model({a: 101}),
+    errorModel = new Backbone.Model();
+
+var form2 = new Backbone.FormView({
+  el: "#form2",
+  model: model,
+  errorModel: errorModel,
+  schema: [{name: "a", label: "Choose a number between 10 and 20. Press Enter to submit the form.", control: "input"}]
+});
+form2.render()
+
+$("#form2").on("submit", function(e) {
+  e.preventDefault();
+
+  errorModel.clear();
+
+  var number = parseFloat(model.get("a"), 10);
+  if (isNaN(number))
+    errorModel.set({a: "Not a number!"});
+  else if (number &lt;= 10 || number &gt;= 20)
+    errorModel.set({a: "Must be between 10 and 20"})
+
+  return false;
+});
+</pre>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-12">
+          <h1 id="Bootstrap">Bootstrap Markup</h1>
+          <p>
+            Backform comes setup for Bootstrap 3 horizontal forms with a 4-column width for labels, and 8-column width for controls.
+            <pre>
+&lt;form class="form-horizontal"&gt; &lt;!-- form --&gt;
+  &lt;div class="form-group"&gt; &lt;!-- form group --&gt;
+    &lt;label class="col-sm-4 control-label"&gt;First Name&lt;/label&gt; &lt;!-- label --&gt;
+    &lt;div class="col-sm-8"&gt; &lt;!-- controls --&gt;
+      &lt;input type="text" class="form-control" name="firstName" data-nested="" value="Andre" placeholder="" /&gt; &lt;!-- control --&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  ...
+&lt;/div&gt;
+</pre>
+            You can however change the layout via <code>Backform.*ClassName</code> options.
+            For example, this switches to a 6-6 column layout:
+            <pre>
+_.extend(Backform, {
+  controlLabelClassName: "control-label col-sm-6",
+  controlsClassName: "col-sm-6",
+});
+</pre>
+            In addition, you can switch to Bootstrap 2.3 by calling the <code>Backform.bootstrap2</code> function.
+            It will change the class names automatically for you and call <code>bootstrap2</code> functions on any control under the Backfrom namespace, as some have to change their HTML markup.
+          </p>
+          <blockquote>TO DO: Complete the Bootstrap 2.3 support...</blockquote>
+        </div>
+      </div>
+
+    </div>
+    <br/>
+
+    <footer class="navbar navbar-default">
+        <p class="navbar-text navbar-left">&copy; 2014 <a href="http://www.amilia.com/en">Amilia Inc.</a> <a href="https://github.com/AmiliaApp/backform/blob/gh-pages/LICENSE">Licensed under MIT.</a></p>
+        <p class="navbar-text navbar-right">Written by <a href="http://martindrapeau.tumblr.com/">Martin Drapeau</a></p>
+        <p class="navbar-text navbar-right">&nbsp;</p>
+    </footer>
+    <a href="https://github.com/AmiliaApp/backform"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_gray_6d6d6d.png" alt="Fork me on GitHub"></a>
+  </body>
+</html>
