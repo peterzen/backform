@@ -37,18 +37,18 @@
         controlLabelClassName: "control-label",
         controlsClassName: "controls",
         controlClassName: "input-xlarge",
-        helpClassName: "inline-help",
+        helpClassName: "text-error",
         errorClassName: "error"
       });
-      _.each(Backform, function(name) {
-        if (Backfrom[name] instanceof Backform.Control &&
-            _.isFunction(Backform[name][bootstrap2]))
-          Backform[name][bootstrap2]();
+      _.each(Backform, function(value, name) {
+        if (_.isFunction(Backform[name]) &&
+            _.isFunction(Backform[name].prototype["bootstrap2"]))
+          Backform[name].prototype["bootstrap2"]();
       });
     }
   };
 
-  // Backfrom Form view
+  // Backform Form view
   var Form = Backform.Form = Backbone.View.extend({
     fields: undefined,
     errorModel: undefined,
@@ -272,10 +272,10 @@
     },
     template: _.template([
       '<label class="<%=Backform.controlLabelClassName%>"><%-label%></label>',
-      '<div class="checkbox">',
+      '<div class="<%=Backform.radioControlsClassName%>">',
       '  <% for (var i=0; i < options.length; i++) { %>',
       '    <% var option = options[i]; %>',
-      '    <label class="checkbox-inline">',
+      '    <label class="<%=Backform.radioLabelClassName%>">',
       '      <input type="<%=type%>" name="<%=name%>" data-nested="<%=nested%>" value="<%=option.value%>" <%=value == option.value ? "checked=\'checked\'" : ""%> /> <%-option.label%>',
       '    </label>',
       '  <% } %>',
@@ -283,7 +283,16 @@
     ].join("\n")),
     getValueFromDOM: function() {
       return this.$el.find("input:checked").val();
+    },
+    bootstrap2: function() {
+      Backform.radioControlsClassName = "controls";
+      Backform.radioLabelClassName = "radio inline";
     }
+  });
+
+  _.extend(Backform, {
+    radioControlsClassName: "checkbox",
+    radioLabelClassname: "checkbox-inline"
   });
 
   var DatepickerControl = Backform.DatepickerControl = InputControl.extend({
