@@ -91,10 +91,8 @@
 
       <div class="row">
         <div class="col-md-12">
-          <p>
-            <button class="btn btn-primary show-code" for="#form-code">Show Code</button>
-          </p>
-<pre id="form-code" style="display:none;">
+          <p><button class="btn btn-primary show-code" for="#form-code">Show Code</button></p>
+          <pre id="form-code" style="display:none;">
 var person = new Backbone.Model({
   id: 101,
   salutation: "Mr",
@@ -260,7 +258,8 @@ control: Backform.InputControl.extend({
             Controls can support extra options. These can directly be passed in the field definition.
             For example, the input control has an extra option <code>type</code> which defaults to <code>text</code>.
             You can override this in this way:
-            <pre>
+          </p>
+<pre>
 fields = [{
   control: "input",
   type: "email"
@@ -309,8 +308,33 @@ var InputControl = Backform.InputControl = Control.extend({
           </p>
           <p>
             Since you have a reference to the field, you can pick up any control options defined in the control class <code>defaults</code>.
-            You can therefore, for example, define an input of type email this way:
+            You can therefore, for example, define an input of type email or number in this way:
           </p>
+          <form id="form-email" class="form-horizontal"></form>
+          <p><button class="btn btn-primary show-code" for="#form-email-code">Show Code</button></p>
+          <pre id="form-email-code" style="display:none;">
+new Backform.Form({
+  el: $("#form-email"),
+  model: new Backbone.Model({email: "jonsnow@castlebla.ck", age:20}),
+  fields: [{
+    name: "email",
+    label: "Email",
+    control: "input",
+    type: "email"
+  }, {
+    name: "age",
+    label: "Age",
+    control: "input",
+    type: "number"
+  }, {
+    control: "submit-button"
+  }]
+}).render();
+
+$("#form-email").on("submit", function(e) {
+  return false;
+});
+</pre>
         </div>
       </div>
 
@@ -331,33 +355,26 @@ var InputControl = Backform.InputControl = Control.extend({
       <div class="row">
         <div class="col-md-12">
           <h3>Example</h3>
-          <form id="form2" class="form-horizontal"></form>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-md-12">
-          <h3>Code</h3>
-<pre>
+          <form id="form-validation" class="form-horizontal"></form>
+          <p><button class="btn btn-primary show-code" for="#form-validation-code">Show Code</button></p>
+          <pre id="form-validation-code" style="display:none;">
 var model = window.model = new Backbone.Model({a: 101}),
     errorModel = window.errorModel = new Backbone.Model();
 
-var form2 = new Backform.Form({
-  el: "#form2",
+new Backform.Form({
+  el: "#form-validation",
   model: model,
   errorModel: errorModel,
-  fields: [
-    {
-      name: "a",
-      label: "Choose a number between 10 and 20. Submit the form to validate.",
-      control: "input"
-    }, {
-      control: "submit-button"
-    }
-  ]
-});
-form2.render();
+  fields: [{
+    name: "a",
+     label: "Choose a number between 10 and 20. Submit the form to validate.",
+     control: "input"
+  }, {
+     control: "submit-button"
+  }]
+}).render();
 
-$("#form2").on("submit", function(e) {
+$("#form-validation").on("submit", function(e) {
   e.preventDefault();
 
   errorModel.clear();

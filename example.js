@@ -72,27 +72,47 @@ $(document).ready(function() {
   }).trigger("change");
 
 
+  // Example with input of type email
+  new Backform.Form({
+    el: $("#form-email"),
+    model: new Backbone.Model({email: "jonsnow@castlebla.ck", age:20}),
+    fields: [{
+      name: "email",
+      label: "Email",
+      control: "input",
+      type: "email"
+    }, {
+      name: "age",
+      label: "Age",
+      control: "input",
+      type: "number"
+    }, {
+      control: "submit-button"
+    }]
+  }).render();
+
+  $("#form-email").on("submit", function(e) {
+    return false;
+  });
+
   // Example with validation
   var model = window.model = new Backbone.Model({a: 101}),
       errorModel = window.errorModel = new Backbone.Model();
   
-  var form2 = new Backform.Form({
-    el: "#form2",
+  new Backform.Form({
+    el: "#form-validation",
     model: model,
     errorModel: errorModel,
-    fields: [
-      {
-        name: "a",
-        label: "Choose a number between 10 and 20. Submit the form to validate.",
-        control: "input"
-      }, {
-        control: "submit-button"
-      }
-    ]
-  });
-  form2.render();
+    fields: [{
+      name: "a",
+       label: "Choose a number between 10 and 20. Submit the form to validate.",
+       control: "input"
+    }, {
+       control: "submit-button"
+    }]
+  }).render();
 
-  $("#form2").on("submit", function(e) {
+  $("#form-validation").on("submit", function(e) {
     e.preventDefault();
 
     errorModel.clear();
