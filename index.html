@@ -171,7 +171,7 @@ person.on("change", function() {
         <div class="col-md-12">
           <h1 id="Documentation">Documentation</h1>
           <p>
-            Backform consists of Backbone views. A form is a view which contains control groups which are also views. A control group is a view which renders a model attribute and captures user input. it also ensures the model and DOM are always in sync. The philosophy is very similar to <a href="http://backgridjs.com/" target="_blank">Backgrid</a>.
+            Backform consists of Backbone views. A form is a view which contains control groups which are also views. A control group is a view which renders a model attribute and captures user input. It also ensures the model and DOM are always in sync. The philosophy is very similar to <a href="http://backgridjs.com/" target="_blank">Backgrid</a>.
           </p>
           <p>
             These are the important Backform classes:
@@ -179,7 +179,7 @@ person.on("change", function() {
           <ul>
             <li><code>Backform.Form</code>: A Backbone view which represents the FORM element.</li>
             <li><code>Backform.Field, Backform.Fields</code>: A Form contains a collection of Field models, which define the mapping of a model attribute to a form control.</li>
-            <li><code>Backform.Control</code>: The ancestor class of Backform controls. A Backbone view which represents a control group (<code>.form-group</code> element in Bootstrap). It implements the <code>render</code> and <code>onChange</code> methods required to keep the DOM and model in sync.</li>
+            <li><code>Backform.Control</code>: The base class of Backform controls. A Backbone view which represents a control group (<code>.form-group</code> element in Bootstrap). It implements the <code>render</code> and <code>onChange</code> methods required to keep the DOM and model in sync.</li>
             <li><code>Backform.InputControl, Backform.SelectControl, ...</code>: The controls themselves inheriting from Backform.Control. They can be extended or you can create your own from scratch.</li>
           </ul>
           <h2>Basic Usage</h2>
