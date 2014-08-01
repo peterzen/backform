@@ -1,7 +1,7 @@
 $(document).ready(function() {
 
   // Backform example - a person model with a nested address object
-  var person = {
+  var person = new Backbone.Model({
     id: 101,
     salutation: "Mr",
     firstName: "Andre",
@@ -16,8 +16,7 @@ $(document).ready(function() {
     },
     dateOfBirth: "1990-10-10",
     lifeGoal: "To become the best basketball player there is. I want to dunk!"
-  };
-  var person = new Backbone.Model(person);
+  });
   
   var form = new Backform.Form({
     el: "#form",
@@ -69,11 +68,9 @@ $(document).ready(function() {
   });
   form.render();
 
-  function updateObject() {
+  person.on("change", function() {
     $("#object").text(JSON.stringify(person.toJSON(), null, 2));
-  }
-  person.on("change", updateObject);
-  updateObject();
+  }).trigger("change");
 
 
   // Example with validation
