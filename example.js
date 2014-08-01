@@ -18,7 +18,7 @@ $(document).ready(function() {
     lifeGoal: "To become the best basketball player there is. I want to dunk!"
   });
   
-  var form = new Backform.Form({
+  new Backform.Form({
     el: "#form",
     model: person,
     fields: [
@@ -65,8 +65,7 @@ $(document).ready(function() {
       {name: "dateOfBirth", label: "Date of birth", control: "datepicker", options: {format: "yyyy-mm-dd"}},
       {name: "lifeGoal", label: "Life goal", control: "textarea"}
     ]
-  });
-  form.render();
+  }).render();
 
   person.on("change", function() {
     $("#object").text(JSON.stringify(person.toJSON(), null, 2));
