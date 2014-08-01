@@ -85,8 +85,13 @@ $(document).ready(function() {
     model: model,
     errorModel: errorModel,
     fields: [
-      {name: "a", label: "Choose a number between 10 and 20. Submit the form to validate.", control: "input"},
-      {control: "submit-button"}
+      {
+        name: "a",
+        label: "Choose a number between 10 and 20. Submit the form to validate.",
+        control: "input"
+      }, {
+        control: "submit-button"
+      }
     ]
   });
   form2.render();
