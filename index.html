@@ -26,6 +26,12 @@
       .shiftable-collection-item {padding: 10px; text-align: center; height: 160px; border: 1px solid #999; margin-right: 10px;}
       .shiftable-collection-item:hover, .shiftable-collection-item.selected {background-color: #ddd;}
       .shiftable-collection img {max-width: 100%; max-height: 100px;}
+      .bs-sidebar .nav > .active > ul {display: block; margin-bottom: 4px;}
+      .bs-sidebar .nav > li > a {padding: 2px 4px;}
+      .bs-sidebar .nav > li.active {background-color: #428bca; border-radius: 0;}
+      .bs-sidebar .nav > li.active > a {color: white;}
+      .bs-sidebar .nav > li.active > a:hover {background-color: #428bca;}
+      .bs-sidebar .nav > li.active, .bs-sidebar .nav > li.active > a:hover {background-color: #428bca;}
     </style>
 
     <script type="text/javascript">
@@ -45,7 +51,8 @@
       });
     </script>
   </head>
-  <body>
+
+  <body data-spy="scroll" data-target="#sidebar" data-offset="100">
     <header class="navbar navbar-inverse">
       <div class="navbar-header">
         <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse">
@@ -65,7 +72,11 @@
         </ul>
       </div>
     </header>
+
     <div class="container">
+    <div class="row">
+    <div class="col-md-10">
+
       <div class="row">
         <div class="col-md-12">
           <h1 id="Introduction">Introduction</h1>
@@ -182,7 +193,7 @@ person.on("change", function() {
             <li><code>Backform.Control</code>: The base class of Backform controls. A Backbone view which represents a control group (<code>.form-group</code> element in Bootstrap). It implements the <code>render</code> and <code>onChange</code> methods required to keep the DOM and model in sync.</li>
             <li><code>Backform.InputControl, Backform.SelectControl, ...</code>: The controls themselves inheriting from Backform.Control. They can be extended or you can create your own from scratch.</li>
           </ul>
-          <h2>Basic Usage</h2>
+          <h2 id="Usage">Basic Usage</h2>
           <p>
             To create a form, you instantiate a Backform.Form view. You pass it a definition of fields.
             A field maps a model attribute to a form control. For example:
@@ -433,6 +444,24 @@ _.extend(Backform, {
         </div>
       </div>
 
+    </div>
+
+    <div class="col-md-2">
+      <div id="sidebar" class="bs-sidebar affix">
+        <ul class="nav bs-sidenav">
+          <li class="active"><a href="#Introduction">Introduction</a></li>
+          <li><a href="#Documentation">Documentation</a></li>
+          <li><a href="#Usage">&nbsp;&nbsp;Basic Usage</a></li>
+          <li><a href="#Fields">&nbsp;&nbsp;Fields</a></li>
+          <li><a href="#Controls">&nbsp;&nbsp;Controls</a></li>
+          <li><a href="#Validation">Validation</a></li>
+          <li><a href="#Markup">HTML Markup</a></li>
+          <li><a href="#Bootstrap2">Bootstrap 2.3</a></li>
+        </ul>
+      </div>
+
+    </div>
+    </div>
     </div>
     <br/>
 
