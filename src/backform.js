@@ -10,6 +10,8 @@
 
   // Backform namespace and global options
   Backform = {
+    // HTML markup global class names. More can be added by individual controls
+    // using _.extend. Look at RadioControl as an example.
     formClassName: "backform form-horizontal",
     groupClassName: "form-group",
     controlLabelClassName: "control-label col-sm-4",
@@ -17,20 +19,8 @@
     controlClassName: "form-control",
     helpClassName: "help-block",
     errorClassName: "has-error",
-    // https://github.com/wyuenho/backgrid/blob/master/lib/backgrid.js
-    resolveNameToClass: function (name, suffix) {
-      if (_.isString(name)) {
-        var key = _.map(name.split('-'), function (e) {
-          return e.slice(0, 1).toUpperCase() + e.slice(1);
-        }).join('') + suffix;
-        var klass = Backform[key];
-        if (_.isUndefined(klass)) {
-          throw new ReferenceError("Class '" + key + "' not found");
-        }
-        return klass;
-      }
-      return name;
-    },
+
+    // Bootstrap 2.3 adapter
     bootstrap2: function() {
       _.extend(Backform, {
         groupClassName: "control-group",
@@ -45,10 +35,25 @@
             _.isFunction(Backform[name].prototype["bootstrap2"]))
           Backform[name].prototype["bootstrap2"]();
       });
+    },
+    // https://github.com/wyuenho/backgrid/blob/master/lib/backgrid.js
+    resolveNameToClass: function (name, suffix) {
+      if (_.isString(name)) {
+        var key = _.map(name.split('-'), function (e) {
+          return e.slice(0, 1).toUpperCase() + e.slice(1);
+        }).join('') + suffix;
+        var klass = Backform[key];
+        if (_.isUndefined(klass)) {
+          throw new ReferenceError("Class '" + key + "' not found");
+        }
+        return klass;
+      }
+      return name;
     }
   };
 
   // Backform Form view
+  // A collection of field models.
   var Form = Backform.Form = Backbone.View.extend({
     fields: undefined,
     errorModel: undefined,
@@ -82,6 +87,7 @@
   });
 
   // Field model and collection
+  // A field maps a model attriute to a control for rendering and capturing user input
   var Field = Backform.Field = Backbone.Model.extend({
     defaults: {
       name: "", // Name of the model attribute
@@ -116,7 +122,7 @@
       '</div>'
     ].join("\n")),
     initialize: function(options) {
-      this.field = options.field;
+      this.field = options.field; // Back-reference to the field
 
       var name = this.field.get("name");
       this.listenTo(this.model, "change:" + name, this.render);
@@ -172,6 +178,7 @@
       return this;
     }
   });
+
 
   // Built-in controls
 
@@ -295,6 +302,7 @@
     radioLabelClassname: "checkbox-inline"
   });
 
+  // Requires the Bootstrap Datepicker to work.
   var DatepickerControl = Backform.DatepickerControl = InputControl.extend({
     defaults: {
       type: "text",

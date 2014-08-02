@@ -69,6 +69,7 @@
           <li><a href="#Documentation">Documentation</a></li>
           <li><a href="#Markup">HTML Markup</a></li>
           <li><a href="bootstrap2.html">Bootstrap 2.3</a></li>
+          <li><a href="https://github.com/AmiliaApp/backform/blob/gh-pages/src/backform.js" target="_blank">&lt;/&gt; View source</a></li>
         </ul>
       </div>
     </header>
@@ -81,11 +82,12 @@
         <div class="col-md-12">
           <h1 id="Introduction">Introduction</h1>
           <p>
-            Backform takes a Backbone model and transforms it into an HTML form with Bootstrap markup.
+            Backform takes a Backbone model and transforms it into an HTML form.
             Any changes to the form are relfected back to the model and vice versa.
-            It comes with built-in controls for input, select, radio buttons and checkbox.
+            It comes with built-in controls for input, select, radio buttons, checkbox, etc.
             Backform controls are Backbone views and extensible.
             Backform even supports nested objects.
+            Backform is built with Bootstrap 3 markup. Supports Bootstrap 2.3. Adaptable to any markup framework.
           </p>
           <h2>Example</h2>
           <p>A Backform to edit a person. The address is a nested object. Change to see the Backbone model updated (right).</p>
@@ -194,6 +196,12 @@ person.on("change", function() {
             <li><code>Backform.InputControl, Backform.SelectControl, ...</code>: The controls themselves inheriting from Backform.Control. They can be extended or you can create your own from scratch.</li>
           </ul>
           <h2 id="Usage">Basic Usage</h2>
+          <p>
+            Backform is a signle Javascript file that you load after Backbone is loaded.
+          </p>
+          <pre>
+&lt;script type="text/javascript" src="backform.js"&gt;&lt;/script&gt;
+</pre>
           <p>
             To create a form, you instantiate a Backform.Form view. You pass it a definition of fields.
             A field maps a model attribute to a form control. For example:
@@ -432,6 +440,9 @@ _.extend(Backform, {
   controlsClassName: "col-sm-6",
 });
 </pre>
+          <p>
+            Backform can be adapted to other markup frameworks by changing the HTML templates of individual controls, and the global classes. See how Backform adapts to Bootstrap 2 as an example.
+          </p>
         </div>
       </div>
 
@@ -459,6 +470,7 @@ _.extend(Backform, {
           <li><a href="#Validation">&nbsp;&nbsp;Validation</a></li>
           <li><a href="#Markup">HTML Markup</a></li>
           <li><a href="#Bootstrap2">Bootstrap 2.3</a></li>
+          <li><a href="https://github.com/AmiliaApp/backform/blob/gh-pages/src/backform.js" target="_blank">&lt;/&gt; View source</a></li>
         </ul>
       </div>
 
