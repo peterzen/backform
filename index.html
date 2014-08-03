@@ -330,7 +330,7 @@ var InputControl = Backform.InputControl = Control.extend({
           </p>
           <p>
             Since you have a reference to the field, you can pick up any control options defined in the control class <code>defaults</code>.
-            You can therefore, for example, define an input of type email or number in this way:
+            You can therefore, define inputs of type email and number and let the browser apply its built-in form validation:
           </p>
           <form id="form-email" class="form-horizontal"></form>
           <p><button class="btn btn-primary show-code" for="#form-email-code">&lt;/&gt; Show Code</button></p>
@@ -377,7 +377,7 @@ $("#form-email").on("submit", function(e) {
       <div class="row">
         <div class="col-md-12">
           <h3>Example</h3>
-          <p>In this example, validation is client-side done when the form is submitted. It could as well be done server-side.</p>
+          <p>In this example, validation is performed client-side when the form is submitted. It could as well be done server-side.</p>
           <form id="form-validation" class="form-horizontal"></form>
           <p><button class="btn btn-primary show-code" for="#form-validation-code">&lt;/&gt; Show Code</button></p>
           <pre id="form-validation-code" style="display:none;">
