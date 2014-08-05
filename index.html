@@ -26,6 +26,12 @@
       .shiftable-collection-item {padding: 10px; text-align: center; height: 160px; border: 1px solid #999; margin-right: 10px;}
       .shiftable-collection-item:hover, .shiftable-collection-item.selected {background-color: #ddd;}
       .shiftable-collection img {max-width: 100%; max-height: 100px;}
+      .bs-sidebar .nav > .active > ul {display: block; margin-bottom: 4px;}
+      .bs-sidebar .nav > li > a {padding: 2px 4px;}
+      .bs-sidebar .nav > li.active {background-color: #428bca; border-radius: 0;}
+      .bs-sidebar .nav > li.active > a {color: white;}
+      .bs-sidebar .nav > li.active > a:hover {background-color: #428bca;}
+      .bs-sidebar .nav > li.active, .bs-sidebar .nav > li.active > a:hover {background-color: #428bca;}
     </style>
 
     <script type="text/javascript">
@@ -45,7 +51,8 @@
       });
     </script>
   </head>
-  <body>
+
+  <body data-spy="scroll" data-target="#sidebar" data-offset="100">
     <header class="navbar navbar-inverse">
       <div class="navbar-header">
         <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse">
@@ -62,19 +69,25 @@
           <li><a href="#Documentation">Documentation</a></li>
           <li><a href="#Markup">HTML Markup</a></li>
           <li><a href="bootstrap2.html">Bootstrap 2.3</a></li>
+          <li><a href="https://github.com/AmiliaApp/backform/blob/gh-pages/src/backform.js" target="_blank">&lt;/&gt; View source</a></li>
         </ul>
       </div>
     </header>
+
     <div class="container">
+    <div class="row">
+    <div class="col-md-10">
+
       <div class="row">
         <div class="col-md-12">
           <h1 id="Introduction">Introduction</h1>
           <p>
-            Backform takes a Backbone model and transforms it into an HTML form with Bootstrap markup.
+            Backform takes a Backbone model and transforms it into an HTML form.
             Any changes to the form are relfected back to the model and vice versa.
-            It comes with built-in controls for input, select, radio buttons and checkbox.
+            It comes with built-in controls for input, select, radio buttons, checkbox, etc.
             Backform controls are Backbone views and extensible.
             Backform even supports nested objects.
+            Backform is built with Bootstrap 3 markup. Supports Bootstrap 2.3. Adaptable to any markup framework.
           </p>
           <h2>Example</h2>
           <p>A Backform to edit a person. The address is a nested object. Change to see the Backbone model updated (right).</p>
@@ -182,7 +195,13 @@ person.on("change", function() {
             <li><code>Backform.Control</code>: The base class of Backform controls. A Backbone view which represents a control group (<code>.form-group</code> element in Bootstrap). It implements the <code>render</code> and <code>onChange</code> methods required to keep the DOM and model in sync.</li>
             <li><code>Backform.InputControl, Backform.SelectControl, ...</code>: The controls themselves inheriting from Backform.Control. They can be extended or you can create your own from scratch.</li>
           </ul>
-          <h2>Basic Usage</h2>
+          <h2 id="Usage">Basic Usage</h2>
+          <p>
+            Backform is a signle Javascript file that you load after Backbone is loaded.
+          </p>
+          <pre>
+&lt;script type="text/javascript" src="backform.js"&gt;&lt;/script&gt;
+</pre>
           <p>
             To create a form, you instantiate a Backform.Form view. You pass it a definition of fields.
             A field maps a model attribute to a form control. For example:
@@ -287,8 +306,10 @@ fields = [{
             <li><code>Backform.BooleanControl</code> (<code>boolean</code>): Alias to Backform.CheckboxControl.</li>
             <li><code>Backform.SelectControl</code> (<code>select</code>): Select drop-down. Pass <code>options</code> to specify a list of options as <code>[{label:&lt;label&gt;, value:&lt;value&gt;}, ...]</code>.</li>
             <li><code>Backform.RadioControl</code> (<code>radio</code>): Radio button inputs. Pass <code>options</code> to specify a list of options as <code>[{label:&lt;label&gt;, value:&lt;value&gt;}, ...]</code>.</li>
-            <li><code>Backform.DatepickerControl</code> (<code>datepicker</code>): An input fill with the <a href="http://www.eyecon.ro/bootstrap-datepicker" target="_blank">Boostrap Datepicker plugin</a>.</li>
+            <li><code>Backform.DatepickerControl</code> (<code>datepicker</code>): An input with the <a href="http://www.eyecon.ro/bootstrap-datepicker" target="_blank">Boostrap Datepicker plugin</a>. Pass <code>options</code> to specify the datepicker options.</li>
             <li><code>Backform.ButtonControl</code> (<code>button</code>): A button of type submit by default. Pass <code>type</code> to change button type.</li>
+            <li><code>Backform.UneditaleInputControl</code> (<code>uneditale-input</code>): Displays an input-like span.</li>
+            <li><code>Backform.SpacerControl</code> (<code>spacer</code>): An empty row.</li>
           </ul>
           <p>
             In the case you want to extend a control, or create your own from scratch, this is the anatomy of the Backform.InputControl view:
@@ -310,7 +331,11 @@ var InputControl = Backform.InputControl = Control.extend({
           </p>
           <p>
             Since you have a reference to the field, you can pick up any control options defined in the control class <code>defaults</code>.
+<<<<<<< HEAD
             You can therefore, for example, define an input of type email or number in this way. The browser will perform validation for you (if validation is supported by the browser).
+=======
+            You can therefore, define inputs of type email and number and let the browser apply its built-in form validation:
+>>>>>>> 32a14aa97e21657fa9bd403d2c602487898ef69c
           </p>
           <form id="form-email" class="form-horizontal"></form>
           <p><button class="btn btn-primary show-code" for="#form-email-code">&lt;/&gt; Show Code</button></p>
@@ -360,7 +385,7 @@ $("#form-email").on("submit", function(e) {
       <div class="row">
         <div class="col-md-12">
           <h3>Example</h3>
-          <p>In this example, validation is client-side done when the form is submitted. It could as well be done server-side.</p>
+          <p>In this example, validation is performed client-side when the form is submitted. It could as well be done server-side.</p>
           <form id="form-validation" class="form-horizontal"></form>
           <p><button class="btn btn-primary show-code" for="#form-validation-code">&lt;/&gt; Show Code</button></p>
           <pre id="form-validation-code" style="display:none;">
@@ -414,7 +439,7 @@ $("#form-validation").on("submit", function(e) {
 &lt;/div&gt;
 </pre>
           <p>
-            You can however change the layout via <code>Backform.*ClassName</code> options.
+            You can however change the layout via global class names in <code>Backform.*ClassName</code> options.
             For example, this switches to a 6-6 column layout:
           </p>
             <pre>
@@ -423,6 +448,9 @@ _.extend(Backform, {
   controlsClassName: "col-sm-6",
 });
 </pre>
+          <p>
+            Backform can be adapted to other markup frameworks by changing the HTML templates of individual controls, and the global class names. See how Backform adapts to Bootstrap 2 as an example by looking at <a href="https://github.com/AmiliaApp/backform/blob/gh-pages/src/backform.js" target="_blank">backform.js</a>.
+          </p>
         </div>
       </div>
 
@@ -432,11 +460,32 @@ _.extend(Backform, {
           <p>
             In addition, you can switch to Bootstrap 2.3 by calling the <code>Backform.bootstrap2</code> function.
             It will change the class names automatically for you and call <code>bootstrap2</code> functions on any control under the Backfrom namespace, as some have to change their HTML markup.
-            See the <a href="bootstrap2.html">Bootstrap 2.3</a> section for details.
+          </p>
+          <p>
+            <a href="bootstrap2.html" class="btn btn-primary">View Examples with Bootstrap 2.3</a>
           </p>
         </div>
       </div>
 
+    </div>
+
+    <div class="col-md-2">
+      <div id="sidebar" class="bs-sidebar affix">
+        <ul class="nav bs-sidenav">
+          <li class="active"><a href="#Introduction">Introduction</a></li>
+          <li><a href="#Documentation">Documentation</a></li>
+          <li><a href="#Usage">&nbsp;&nbsp;Basic Usage</a></li>
+          <li><a href="#Fields">&nbsp;&nbsp;Fields</a></li>
+          <li><a href="#Controls">&nbsp;&nbsp;Controls</a></li>
+          <li><a href="#Validation">&nbsp;&nbsp;Validation</a></li>
+          <li><a href="#Markup">HTML Markup</a></li>
+          <li><a href="#Bootstrap2">Bootstrap 2.3</a></li>
+          <li><a href="https://github.com/AmiliaApp/backform/blob/gh-pages/src/backform.js" target="_blank">&lt;/&gt; View source</a></li>
+        </ul>
+      </div>
+
+    </div>
+    </div>
     </div>
     <br/>
 
