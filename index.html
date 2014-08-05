@@ -236,6 +236,7 @@ form.render(); // Backform.*Control views are created for each field and rendere
             <li><code>label</code>: Optional. Control label.</li>
             <li><code>placeholder</code>: Optional. Control placeholder.</li>
             <li><code>disabled</code>: Whether the control can be edited. Defaults to false.</li>
+            <li><code>required</code>: Whether the control is required. Defaults to false.</li>
             <li><code>value</code>: Optional. Default value when model is empty.</li>
             <li><code>control</code>: Control name or class</li>
           </ul>
@@ -287,7 +288,7 @@ fields = [{
             <li><code>Backform.SelectControl</code> (<code>select</code>): Select drop-down. Pass <code>options</code> to specify a list of options as <code>[{label:&lt;label&gt;, value:&lt;value&gt;}, ...]</code>.</li>
             <li><code>Backform.RadioControl</code> (<code>radio</code>): Radio button inputs. Pass <code>options</code> to specify a list of options as <code>[{label:&lt;label&gt;, value:&lt;value&gt;}, ...]</code>.</li>
             <li><code>Backform.DatepickerControl</code> (<code>datepicker</code>): An input fill with the <a href="http://www.eyecon.ro/bootstrap-datepicker" target="_blank">Boostrap Datepicker plugin</a>.</li>
-            <li><code>Backform.SubmitButtonControl</code> (<code>submit-button</code>): A submit button. Pass <code>type</code> to change button type.</li>
+            <li><code>Backform.ButtonControl</code> (<code>button</code>): A button of type submit by default. Pass <code>type</code> to change button type.</li>
           </ul>
           <p>
             In the case you want to extend a control, or create your own from scratch, this is the anatomy of the Backform.InputControl view:
@@ -309,7 +310,7 @@ var InputControl = Backform.InputControl = Control.extend({
           </p>
           <p>
             Since you have a reference to the field, you can pick up any control options defined in the control class <code>defaults</code>.
-            You can therefore, for example, define an input of type email or number in this way:
+            You can therefore, for example, define an input of type email or number in this way. The browser will perform validation for you (if validation is supported by the browser).
           </p>
           <form id="form-email" class="form-horizontal"></form>
           <p><button class="btn btn-primary show-code" for="#form-email-code">&lt;/&gt; Show Code</button></p>
@@ -321,18 +322,21 @@ new Backform.Form({
     name: "email",
     label: "Email",
     control: "input",
-    type: "email"
+    type: "email",
+    required: true
   }, {
     name: "age",
     label: "Age",
     control: "input",
-    type: "number"
+    type: "number",
+    required: true
   }, {
-    control: "submit-button"
+    control: "button"
   }]
 }).render();
 
 $("#form-email").on("submit", function(e) {
+  alert("Browser validation passed");
   return false;
 });
 </pre>
@@ -372,7 +376,7 @@ new Backform.Form({
      label: "Choose a number between 10 and 20. Submit the form to validate.",
      control: "input"
   }, {
-     control: "submit-button"
+     control: "button"
   }]
 }).render();
 

@@ -80,18 +80,21 @@ $(document).ready(function() {
       name: "email",
       label: "Email",
       control: "input",
-      type: "email"
+      type: "email",
+      required: true
     }, {
       name: "age",
       label: "Age",
       control: "input",
-      type: "number"
+      type: "number",
+      required: true
     }, {
-      control: "submit-button"
+      control: "button"
     }]
   }).render();
 
   $("#form-email").on("submit", function(e) {
+    alert("Browser validation passed");
     return false;
   });
 
@@ -108,7 +111,7 @@ $(document).ready(function() {
        label: "Choose a number between 10 and 20. Submit the form to validate.",
        control: "input"
     }, {
-       control: "submit-button"
+       control: "button"
     }]
   }).render();
 

@@ -89,6 +89,7 @@
       label: "",
       placeholder: "",
       disabled: false,
+      required: false,
       value: undefined, // Optional. Default value when model is empty.
       control: undefined // Control name or class
     },
@@ -189,7 +190,7 @@
     template: _.template([
       '<label class="<%=Backform.controlLabelClassName%>"><%-label%></label>',
       '<div class="<%=Backform.controlsClassName%>">',
-      '  <textarea class="<%=Backform.controlClassName%>" name="<%=name%>" data-nested="<%=nested%>" placeholder="<%-placeholder%>" <%=disabled ? "disabled=\'disabled\'" : ""%>><%-value%></textarea>',
+      '  <textarea class="<%=Backform.controlClassName%>" name="<%=name%>" data-nested="<%=nested%>" placeholder="<%-placeholder%>" <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%>><%-value%></textarea>',
       '</div>',
     ].join("\n")),
     events: {
@@ -208,7 +209,7 @@
     template: _.template([
       '<label class="<%=Backform.controlLabelClassName%>"><%-label%></label>',
       '<div class="<%=Backform.controlsClassName%>">',
-      '  <select class="<%=Backform.controlClassName%>" name="<%=name%>" data-nested="<%=nested%>" value="<%-value%>" <%=disabled ? "disabled=\'disabled\'" : ""%> >',
+      '  <select class="<%=Backform.controlClassName%>" name="<%=name%>" data-nested="<%=nested%>" value="<%-value%>" <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%> >',
       '    <% for (var i=0; i < options.length; i++) { %>',
       '      <% var option = options[i]; %>',
       '      <option value="<%-option.value%>" <%=option.value == value ? "selected=\'selected\'" : ""%>><%-option.label%></option>',
@@ -232,7 +233,7 @@
     template: _.template([
       '<label class="<%=Backform.controlLabelClassName%>"><%-label%></label>',
       '<div class="<%=Backform.controlsClassName%>">',
-      '  <input type="<%=type%>" class="<%=Backform.controlClassName%>" name="<%=name%>" data-nested="<%=nested%>" value="<%-value%>" placeholder="<%-placeholder%>" <%=disabled ? "disabled=\'disabled\'" : ""%> />',
+      '  <input type="<%=type%>" class="<%=Backform.controlClassName%>" name="<%=name%>" data-nested="<%=nested%>" value="<%-value%>" placeholder="<%-placeholder%>" <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%> />',
       '</div>',
     ].join("\n")),
     events: {
@@ -253,7 +254,7 @@
       '<div class="<%=Backform.controlsClassName%>">',
       '  <div class="checkbox">',
       '    <label>',
-      '      <input type="<%=type%>" name="<%=name%>" data-nested="<%=nested%>" <%=value ? "checked=\'checked\'" : ""%> <%=disabled ? "disabled=\'disabled\'" : ""%> /> <%-label%>',
+      '      <input type="<%=type%>" name="<%=name%>" data-nested="<%=nested%>" <%=value ? "checked=\'checked\'" : ""%> <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%> /> <%-label%>',
       '    </label>',
       '  </div>',
       '</div>',
@@ -276,7 +277,7 @@
       '  <% for (var i=0; i < options.length; i++) { %>',
       '    <% var option = options[i]; %>',
       '    <label class="<%=Backform.radioLabelClassName%>">',
-      '      <input type="<%=type%>" name="<%=name%>" data-nested="<%=nested%>" value="<%=option.value%>" <%=value == option.value ? "checked=\'checked\'" : ""%> /> <%-option.label%>',
+      '      <input type="<%=type%>" name="<%=name%>" data-nested="<%=nested%>" value="<%=option.value%>" <%=value == option.value ? "checked=\'checked\'" : ""%> <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%> /> <%-option.label%>',
       '    </label>',
       '  <% } %>',
       '</div>',
@@ -311,14 +312,14 @@
     }
   });
 
-  var SubmitButtonControl = Backform.SubmitButtonControl = Control.extend({
+  var ButtonControl = Backform.ButtonControl = Control.extend({
     defaults: {
       type: "submit"
     },
     template: _.template([
       '<label class="<%=Backform.controlLabelClassName%>"><%-label%></label>',
       '<div class="<%=Backform.controlsClassName%>">',
-      '  <button type="<%=type%>" class="btn btn-default">Submit</button>',
+      '  <button type="<%=type%>" class="btn btn-default" <%=disabled ? "disabled" : ""%> >Submit</button>',
       '</div>'
     ].join("\n"))
   });
