@@ -216,10 +216,10 @@
     template: _.template([
       '<label class="<%=Backform.controlLabelClassName%>"><%-label%></label>',
       '<div class="<%=Backform.controlsClassName%>">',
-      '  <select class="<%=Backform.controlClassName%>" name="<%=name%>" data-nested="<%=nested%>" value="<%-value%>" <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%> >',
+      '  <select class="<%=Backform.controlClassName%>" name="<%=name%>" data-nested="<%=nested%>" value="<%-JSON.stringify(value)%>" <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%> >',
       '    <% for (var i=0; i < options.length; i++) { %>',
       '      <% var option = options[i]; %>',
-      '      <option value="<%-option.value%>" <%=option.value == value ? "selected=\'selected\'" : ""%>><%-option.label%></option>',
+      '      <option value="<%-JSON.stringify(option.value)%>" <%=option.value == value ? "selected=\'selected\'" : ""%>><%-option.label%></option>',
       '    <% } %>',
       '  </select>',
       '</div>',
@@ -229,7 +229,7 @@
       "focus select": "clearInvalid"
     },
     getValueFromDOM: function() {
-      return this.$el.find("select").val();
+      return JSON.parse(this.$el.find("select").val());
     }
   });
 
@@ -280,17 +280,17 @@
     },
     template: _.template([
       '<label class="<%=Backform.controlLabelClassName%>"><%-label%></label>',
-      '<div class="<%=Backform.radioControlsClassName%>">',
+      '<div class="<%=Backform.controlsClassName%> <%=Backform.radioControlsClassName%>">',
       '  <% for (var i=0; i < options.length; i++) { %>',
       '    <% var option = options[i]; %>',
       '    <label class="<%=Backform.radioLabelClassName%>">',
-      '      <input type="<%=type%>" name="<%=name%>" data-nested="<%=nested%>" value="<%=option.value%>" <%=value == option.value ? "checked=\'checked\'" : ""%> <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%> /> <%-option.label%>',
+      '      <input type="<%=type%>" name="<%=name%>" data-nested="<%=nested%>" value="<%-JSON.stringify(option.value)%>" <%=value == option.value ? "checked=\'checked\'" : ""%> <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%> /> <%-option.label%>',
       '    </label>',
       '  <% } %>',
       '</div>',
     ].join("\n")),
     getValueFromDOM: function() {
-      return this.$el.find("input:checked").val();
+      return JSON.parse(this.$el.find("input:checked").val());
     },
     bootstrap2: function() {
       Backform.radioControlsClassName = "controls";

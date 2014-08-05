@@ -71,6 +71,32 @@ $(document).ready(function() {
     $("#object").text(JSON.stringify(person.toJSON(), null, 2));
   }).trigger("change");
 
+  // Example with question
+  window.f = new Backform.Form({
+    el: $("#form-question"),
+    model: new Backbone.Model({toggle: true, years:0}),
+    fields: [{
+      name: "toggle",
+      label: "Are you a programmer?",
+      control: "radio",
+      options: [{label: "Yes", value: true}, {label: "No", value: false}]
+    }, {
+      name: "years",
+      label: "For how many years?",
+      control: Backform.InputControl.extend({
+        initialize: function() {
+          Backform.InputControl.prototype.initialize.apply(this, arguments);
+          this.listenTo(this.model, "change:toggle", this.render);
+        },
+        render: function() {
+          if (this.model.get("toggle"))
+            return Backform.InputControl.prototype.render.apply(this, arguments);
+          this.$el.empty();
+          return this;
+        }
+      })
+    }]
+  }).render();
 
   // Example with input of type email
   new Backform.Form({
