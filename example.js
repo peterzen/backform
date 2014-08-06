@@ -1,7 +1,7 @@
 $(document).ready(function() {
 
   // Backform example - a person model with a nested address object
-  var person = new Backbone.Model({
+  var person = window.person = new Backbone.Model({
     id: 101,
     salutation: "Mr",
     firstName: "Andre",
@@ -74,7 +74,7 @@ $(document).ready(function() {
   // Example with question
   window.f = new Backform.Form({
     el: $("#form-question"),
-    model: new Backbone.Model({toggle: true, years:0}),
+    model: new Backbone.Model({toggle: false, years:0}),
     fields: [{
       name: "toggle",
       label: "Are you a programmer?",
@@ -125,32 +125,41 @@ $(document).ready(function() {
   });
 
   // Example with validation
-  var model = window.model = new Backbone.Model({a: 101}),
+  var model = window.model = new Backbone.Model({a: null}),
       errorModel = window.errorModel = new Backbone.Model();
   
-  new Backform.Form({
+  var form = window.form = new Backform.Form({
     el: "#form-validation",
     model: model,
     errorModel: errorModel,
     fields: [{
       name: "a",
-       label: "Choose a number between 10 and 20. Submit the form to validate.",
-       control: "input"
+      label: "Type in a number between 10 and 20. Submit the form to validate.",
+      control: "input",
+      type: "number"
     }, {
-       control: "button"
+      id: "submit",
+      control: "button"
     }]
   }).render();
+  var submit = form.fields.get("submit");
 
   $("#form-validation").on("submit", function(e) {
     e.preventDefault();
 
     errorModel.clear();
+    submit.set({status: null, message: ""});
 
     var number = parseFloat(model.get("a"), 10);
     if (isNaN(number))
       errorModel.set({a: "Not a number!"});
     else if (number <= 10 || number >= 20)
       errorModel.set({a: "Must be between 10 and 20"})
+
+    if (errorModel.get("a"))
+      submit.set({status:"error", message: "Validation errors. Please fix."});
+    else
+      submit.set({status:"success", message: "Success!"});
 
     return false;
   });

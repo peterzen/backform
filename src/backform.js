@@ -65,7 +65,7 @@
       if (!(options.fields instanceof Backbone.Collection))
         options.fields = new Fields(options.fields || this.fields);
       this.fields = options.fields;
-      this.model.errorModel = options.errorModel || new Backbone.Model();
+      this.model.errorModel = options.errorModel || this.model.errorModel || new Backbone.Model();
     },
     render: function() {
       this.$el.empty();
@@ -141,6 +141,9 @@
           value = this.getValueFromDOM(),
           changes = {};
 
+      if (this.model.errorModel instanceof Backbone.Model)
+        this.model.errorModel.unset(name);
+
       if (_.isEmpty(nested)) {
         changes[name] = value;
       } else {
@@ -169,7 +172,12 @@
 
       this.clearInvalid();
 
-      var error = errorModel.get(this.field.get("name"));
+      var name = this.field.get("name"),
+          nested = this.field.get("nested"),
+          error = errorModel.get(this.field.get("name"));
+      if (_.isEmpty(error)) return;
+
+      if (nested && _.isObject(error)) error = error[nested];
       if (_.isEmpty(error)) return;
 
       this.$el.addClass(Backform.errorClassName);
@@ -297,7 +305,6 @@
       Backform.radioLabelClassName = "radio inline";
     }
   });
-
   _.extend(Backform, {
     radioControlsClassName: "checkbox",
     radioLabelClassname: "checkbox-inline"
@@ -322,14 +329,31 @@
 
   var ButtonControl = Backform.ButtonControl = Control.extend({
     defaults: {
-      type: "submit"
+      type: "submit",
+      status: undefined, // error or success
+      message: undefined
     },
     template: _.template([
       '<label class="<%=Backform.controlLabelClassName%>"><%-label%></label>',
       '<div class="<%=Backform.controlsClassName%>">',
       '  <button type="<%=type%>" class="btn btn-default" <%=disabled ? "disabled" : ""%> >Submit</button>',
+      '  <% var cls = ""; if (status == "error") cls = Backform.buttonStatusErrorClassName; if (status == "success") cls = Backform.buttonStatusSuccessClassname; %>',
+      '  <span class="status <%=cls%>"><%=message%></span>',
       '</div>'
-    ].join("\n"))
+    ].join("\n")),
+    initialize: function() {
+      Control.prototype.initialize.apply(this, arguments);
+      this.listenTo(this.field, "change:status", this.render);
+      this.listenTo(this.field, "change:message", this.render);
+    },
+    bootstrap2: function() {
+      Backform.buttonStatusErrorClassName = "text-error";
+      Backform.buttonStatusSuccessClassname = "text-success";
+    }
+  });
+  _.extend(Backform, {
+    buttonStatusErrorClassName: "text-danger",
+    buttonStatusSuccessClassname: "text-success"
   });
 
 }).call(this);
