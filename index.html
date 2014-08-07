@@ -354,8 +354,6 @@ var InputControl = Backform.InputControl = Control.extend({
 &lt;/div&gt;
 </pre>
           <p class="note">See the <a href="#Markup">HTML Markup</a> section for more information on HTML elements.</p>
-          <br/>
-          </p>
 
           <h3>Keeping the model in sync with the DOM</h3>
           <p>
@@ -409,29 +407,58 @@ new Backform.Form({
           <h2 id="Validation">Validation</h2>
           <p>
             Backform can render error validation markup à la Bootstrap.
-            It does not leverage the built-in Backbone model <code>validation</code> and <code>isValid</code> methods.
-            Instead, it allows you to keep a companion model with errors that get rendered on the form.
-            This is useful for back-end validation whereby the result of a 4xx HTTP error would contain a mapping of attribute-errors.
+            It does so by attaching a companion error model on the form data model.
+            When the Backform.Form view is constructed, it adds a new property <code>errorModel</code> onto the model (alternatively you can pass your own <code>errorModel</code> when you create the Backform.Form view).
+            The error model is simply a Backbone model which contains the same attribute names as the original model, but with error messages as values.
+            The form will automatically listen for changes on the <code>errorModel</code> to display the errors.
+            You need only set the invalid attribute with an appropriate error message and for it to be displayed.
           </p>
           <p>
-            Backform.Form accepts an optional <code>errorModel</code>. It should contain the same attributes as the original <code>model</code> but with error messages as values. The form will automatically listen for changes on the <code>errorModel</code> to display the errors. You need only set the invalid attribute with an appropriate error message and for it to be displayed.
+            You can then use Backbone model's validate method to set the errors. For example:
           </p>
+          <pre>
+  validate: function(attributes, options) {
+    this.errorModel.clear();
+
+    var number = parseFloat(this.get("a"), 10);
+    if (isNaN(number))
+      this.errorModel.set({a: "Not a number!"});
+    else if (number <= 10 || number >= 20)
+      this.errorModel.set({a: "Must be between 10 and 20"});
+
+    if (!_.isEmpty(_.compact(this.errorModel.toJSON())))
+      return "Validation errors. Please fix.";
+  }
+</pre>
         </div>
       </div>
       <div class="row">
         <div class="col-md-12">
           <h3>Client-Side Validation Example</h3>
-          <p>In this example, validation is performed client-side when the form is submitted. It could as well be done server-side.</p>
+          <p>In this example, validation is performed client-side when the form is submitted.</p>
           <form id="form-validation" class="form-horizontal"></form>
           <p><button class="btn btn-primary show-code" for="#form-validation-code">&lt;/&gt; Show Code</button></p>
           <pre id="form-validation-code" style="display:none;">
-var model = window.model = new Backbone.Model({a: null}),
-    errorModel = window.errorModel = new Backbone.Model();
+var MyModel = Backbone.Model.extend({
+  validate: function(attributes, options) {
+    this.errorModel.clear();
 
-var form = window.form = new Backform.Form({
+    var number = parseFloat(this.get("a"), 10);
+    if (isNaN(number))
+      this.errorModel.set({a: "Not a number!"});
+    else if (number <= 10 || number >= 20)
+      this.errorModel.set({a: "Must be between 10 and 20"});
+
+    if (!_.isEmpty(_.compact(this.errorModel.toJSON())))
+      return "Validation errors. Please fix.";
+  }
+});
+
+var model = new MyModel({a: null});
+
+var form = new Backform.Form({
   el: "#form-validation",
   model: model,
-  errorModel: errorModel,
   fields: [{
     name: "a",
     label: "Type in a number between 10 and 20. Submit the form to validate.",
@@ -447,19 +474,10 @@ var submit = form.fields.get("submit");
 $("#form-validation").on("submit", function(e) {
   e.preventDefault();
 
-  errorModel.clear();
-  submit.set({status:null, statusMessage: ""});
-
-  var number = parseFloat(model.get("a"), 10);
-  if (isNaN(number))
-    errorModel.set({a: "Not a number!"});
-  else if (number <= 10 || number >= 20)
-    errorModel.set({a: "Must be between 10 and 20"})
-
-  if (errorModel.get("a"))
-    submit.set({status:"error", statusMessage: "Validation errors. Please fix."});
+  if (model.isValid())
+    submit.set({status:"success", message: "Success!"});
   else
-    submit.set({status:"success", statusMessage: "Success!"});
+    submit.set({status:"error", message: model.validationError});
 
   return false;
 });

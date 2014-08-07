@@ -125,13 +125,26 @@ $(document).ready(function() {
   });
 
   // Example with validation
-  var model = window.model = new Backbone.Model({a: null}),
-      errorModel = window.errorModel = new Backbone.Model();
+  var MyModel = Backbone.Model.extend({
+    validate: function(attributes, options) {
+      this.errorModel.clear();
+
+      var number = parseFloat(this.get("a"), 10);
+      if (isNaN(number))
+        this.errorModel.set({a: "Not a number!"});
+      else if (number <= 10 || number >= 20)
+        this.errorModel.set({a: "Must be between 10 and 20"});
+
+      if (!_.isEmpty(_.compact(this.errorModel.toJSON())))
+        return "Validation errors. Please fix.";
+    }
+  });
+
+  var model = new MyModel({a: null});
   
-  var form = window.form = new Backform.Form({
+  var form = new Backform.Form({
     el: "#form-validation",
     model: model,
-    errorModel: errorModel,
     fields: [{
       name: "a",
       label: "Type in a number between 10 and 20. Submit the form to validate.",
@@ -147,19 +160,10 @@ $(document).ready(function() {
   $("#form-validation").on("submit", function(e) {
     e.preventDefault();
 
-    errorModel.clear();
-    submit.set({status: null, message: ""});
-
-    var number = parseFloat(model.get("a"), 10);
-    if (isNaN(number))
-      errorModel.set({a: "Not a number!"});
-    else if (number <= 10 || number >= 20)
-      errorModel.set({a: "Must be between 10 and 20"})
-
-    if (errorModel.get("a"))
-      submit.set({status:"error", message: "Validation errors. Please fix."});
-    else
+    if (model.isValid())
       submit.set({status:"success", message: "Success!"});
+    else
+      submit.set({status:"error", message: model.validationError});
 
     return false;
   });
