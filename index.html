@@ -251,7 +251,7 @@ form.render(); // Backform.*Control views are created for each field and rendere
             Either way, they get converted to a collection of models.
           </p>
           <p>
-            A Backform.Field can contain these options (translated to model attributes).
+            A Backform.Field can contain these options which get translated to model attributes.
           </p>
           <ul>
             <li><code>name</code>: Key of the model attribute to reference.</li>
@@ -279,7 +279,7 @@ control: Backform.InputControl.extend({
 </pre>
           </p>
           <p>
-            Controls can support extra options. These can directly be passed in the field definition.
+            When the control is created, it will be passed the field model as back-reference. As such, controls can support extra options. These can directly be passed in the field definition.
             For example, the input control has an extra option <code>type</code> which defaults to <code>text</code>.
             You can override this in this way:
           </p>
@@ -317,8 +317,15 @@ fields = [{
 
           <h3>Anatomy of a Control</h3>
           <p>
-            A control is a Backbone view which leverages methods <code>initialize</code> and <code>render</code>, and property <code>events</code>. In addition, Backform.Control adds properties <code>defaults</code>, <code>template</code> and method <code>getValueFromDOM</code>. As an example this is the anatomy of the <code>Backform.InputControl</code> view:
-            <pre>
+            A control is a Backbone view which leverages methods <code>initialize</code> and <code>render</code>, and properties <code>className</code> and <code>events</code>. In addition, Backform.Control adds these:
+            <ul>
+              <li><code>defaults</code>: Extra options that can be passed in the field definition, with their default values.</li>
+              <li><code>template</code>: An <a href="http://underscorejs.org/#template" target="_blank">underscore template</a> to render the control.</li>
+              <li><code>getValueFromDOM</code>: A method to retrieve the value from the DOM and translate it to a model value.</li>
+            </ul>
+            As an example this is the anatomy of the <code>Backform.InputControl</code> view:
+          </p>
+          <pre>
 var InputControl = Backform.InputControl = Control.extend({
   defaults: { // Extra options that can be passed in the field defition.
     type: "text"
@@ -336,7 +343,7 @@ var InputControl = Backform.InputControl = Control.extend({
 
           <h3>Rendering</h3>
           <p>
-            The Control render method will use the <a href="http://underscorejs.org/#template" target="_blank">underscore <code>template</code></a> to render itself.
+            The Control <code>render</code> method will use the <a href="http://underscorejs.org/#template" target="_blank">underscore <code>template</code></a> to render itself.
             The template is passed the back-reference serialized field model, along with <code>attributes</code> (serialized form model) and <code>value</code> (the form model's attribute for this control as defined by <code>name</code> in the field).
             For example, this is the InputControl's template:
           </p>
