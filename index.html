@@ -423,7 +423,7 @@ new Backform.Form({
     var number = parseFloat(this.get("a"), 10);
     if (isNaN(number))
       this.errorModel.set({a: "Not a number!"});
-    else if (number <= 10 || number >= 20)
+    else if (number &lt;= 10 || number &gt;= 20)
       this.errorModel.set({a: "Must be between 10 and 20"});
 
     if (!_.isEmpty(_.compact(this.errorModel.toJSON())))
@@ -440,13 +440,16 @@ new Backform.Form({
           <p><button class="btn btn-primary show-code" for="#form-validation-code">&lt;/&gt; Show Code</button></p>
           <pre id="form-validation-code" style="display:none;">
 var MyModel = Backbone.Model.extend({
+  defaults: {
+    a: null
+  },
   validate: function(attributes, options) {
     this.errorModel.clear();
 
     var number = parseFloat(this.get("a"), 10);
     if (isNaN(number))
       this.errorModel.set({a: "Not a number!"});
-    else if (number <= 10 || number >= 20)
+    else if (number &lt;= 10 || number &gt;= 20)
       this.errorModel.set({a: "Must be between 10 and 20"});
 
     if (!_.isEmpty(_.compact(this.errorModel.toJSON())))
@@ -454,11 +457,9 @@ var MyModel = Backbone.Model.extend({
   }
 });
 
-var model = new MyModel({a: null});
-
 var form = new Backform.Form({
   el: "#form-validation",
-  model: model,
+  model: new MyModel(),
   fields: [{
     name: "a",
     label: "Type in a number between 10 and 20. Submit the form to validate.",
@@ -469,15 +470,15 @@ var form = new Backform.Form({
     control: "button"
   }]
 }).render();
-var submit = form.fields.get("submit");
 
-$("#form-validation").on("submit", function(e) {
+form.$el.on("submit", function(e) {
   e.preventDefault();
+  var submit = form.fields.get("submit");
 
-  if (model.isValid())
+  if (form.model.isValid())
     submit.set({status:"success", message: "Success!"});
   else
-    submit.set({status:"error", message: model.validationError});
+    submit.set({status:"error", message: form.model.validationError});
 
   return false;
 });

@@ -126,6 +126,9 @@ $(document).ready(function() {
 
   // Example with validation
   var MyModel = Backbone.Model.extend({
+    defaults: {
+      a: null
+    },
     validate: function(attributes, options) {
       this.errorModel.clear();
 
@@ -139,12 +142,10 @@ $(document).ready(function() {
         return "Validation errors. Please fix.";
     }
   });
-
-  var model = new MyModel({a: null});
   
   var form = new Backform.Form({
     el: "#form-validation",
-    model: model,
+    model: new MyModel(),
     fields: [{
       name: "a",
       label: "Type in a number between 10 and 20. Submit the form to validate.",
@@ -155,15 +156,15 @@ $(document).ready(function() {
       control: "button"
     }]
   }).render();
-  var submit = form.fields.get("submit");
 
-  $("#form-validation").on("submit", function(e) {
+  form.$el.on("submit", function(e) {
     e.preventDefault();
+    var submit = form.fields.get("submit");
 
-    if (model.isValid())
+    if (form.model.isValid())
       submit.set({status:"success", message: "Success!"});
     else
-      submit.set({status:"error", message: model.validationError});
+      submit.set({status:"error", message: form.model.validationError});
 
     return false;
   });
