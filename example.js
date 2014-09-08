@@ -17,7 +17,7 @@ $(document).ready(function() {
     dateOfBirth: "1990-10-10",
     lifeGoal: "To become the best basketball player there is. I want to dunk!"
   });
-  
+
   new Backform.Form({
     el: "#form",
     model: person,
@@ -124,6 +124,56 @@ $(document).ready(function() {
     return false;
   });
 
+  // Example with deeply nested objects
+  var personAndFamily = new Backbone.Model({
+    "firstName": "Andre",
+    "lastName": "Jones",
+    "relatives": {
+      "mother": {
+        "firstName": "Elizabeth",
+        "lastName": "Jones"
+      },
+      "father": {
+        "firstName": "Douglas",
+        "lastName": "Jones"
+      }
+    }
+  });
+
+  new Backform.Form({
+    el: "#form-nested",
+    model: personAndFamily,
+    fields: [
+      {name: "firstName", label: "First Name", control: "input"},
+      {name: "lastName", label: "Last Name", control: "input"},
+      {
+        name: "relatives",
+        label: "Mother's First Name",
+        nested: "mother.firstName",
+        control: "input",
+      }, {
+        name: "relatives",
+        label: "Mother's Last Name",
+        nested: "mother.lastName",
+        control: "input",
+      }, {
+        name: "relatives",
+        label: "Father's First Name",
+        nested: "father.firstName",
+        control: "input",
+      }, {
+        name: "relatives",
+        label: "Father's Last Name",
+        nested: "father.lastName",
+        control: "input",
+      }
+    ]
+  }).render();
+
+  personAndFamily.on("change", function() {
+    $("#nested-object").text(JSON.stringify(personAndFamily.toJSON(), null, 2));
+  }).trigger("change");
+
   // Example with validation
   var MyModel = Backbone.Model.extend({
     defaults: {
@@ -142,7 +192,7 @@ $(document).ready(function() {
         return "Validation errors. Please fix.";
     }
   });
-  
+
   var form = new Backform.Form({
     el: "#form-validation",
     model: new MyModel(),
