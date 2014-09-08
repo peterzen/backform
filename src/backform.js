@@ -148,14 +148,15 @@
         changes[name] = value;
       } else {
         changes[name] = _.clone(model.get(name)) || {};
-        changes[name][nested] = value;
+        this.keyPathSetter(changes[name], nested, value);
       }
-      model.set(changes);
+      model.set(changes, {silent: true}); // Make sure that change event is fired for nested objects
+      model.trigger('change');
     },
     render: function() {
       var field = _.defaults(this.field.toJSON(), this.defaults),
           attributes = this.model.toJSON(),
-          value = field.nested ? attributes[field.name][field.nested] : attributes[field.name],
+          value = field.nested ? this.keyPathAccessor(attributes[field.name], field.nested) : attributes[field.name],
           data = _.extend(field, {value: value, attributes: attributes});
       this.$el.html(this.template(data));
       this.updateInvalid();
@@ -177,7 +178,7 @@
           error = errorModel.get(this.field.get("name"));
       if (_.isEmpty(error)) return;
 
-      if (nested && _.isObject(error)) error = error[nested];
+      if (nested && _.isObject(error)) error = this.keyPathAccessor(error, nested);
       if (_.isEmpty(error)) return;
 
       this.$el.addClass(Backform.errorClassName);
@@ -185,9 +186,23 @@
         .append('<span class="'+Backform.helpClassName+' error">' + (_.isArray(error) ? error.join(", ") : error) + '</span>');
 
       return this;
+    },
+    keyPathAccessor: function(obj, path) {
+      var res = obj;
+      path = path.split('.');
+      for (var i=0; i < path.length; i++) {
+        if (res[path[i]]) res=res[path[i]];
+      }
+      return _.isObject(res) ? null : res;
+    },
+    keyPathSetter: function(obj, path, value) {
+      path = path.split('.');
+      while (path.length > 1) {
+        obj = obj[path.shift()];
+      }
+      return obj[path.shift()] = value;
     }
   });
-
 
   // Built-in controls
 

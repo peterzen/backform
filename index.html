@@ -5,21 +5,21 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
-    
+
     <script src="3rd/jquery.min.js" type="text/javascript"></script>
     <script src="3rd/bootstrap.min.js" type="text/javascript"></script>
     <link href="3rd/bootstrap.min.css" rel="stylesheet" type="text/css" charset="utf-8">
 
     <script src="3rd/bootstrap-datepicker.js" type="text/javascript"></script>
     <link href="3rd/bootstrap-datepicker.css" rel="stylesheet" type="text/css" charset="utf-8">
-    
+
     <script src="3rd/underscore.js" type="text/javascript"></script>
     <script src="3rd/backbone.js" type="text/javascript"></script>
-    
+
     <script src="src/backform.js" type="text/javascript"></script>
 
     <script src="example.js" type="text/javascript"></script>
-    
+
     <style>
       header.navbar-inverse {border-radius: 0;}
       footer.navbar-default {border-radius: 0; margin-bottom: 0;}
@@ -255,7 +255,7 @@ form.render(); // Backform.*Control views are created for each field and rendere
           </p>
           <ul>
             <li><code>name</code>: Key of the model attribute to reference.</li>
-            <li><code>nested</code>: Optional. If the model attribute is an object, nested attribute key to display (and update).</li>
+            <li><code>nested</code>: Optional. If the model attribute is an object, nested attribute key to display (and update). Multiple levels of nesting are supported via <i>x.y.z</i> syntax.</li>
             <li><code>label</code>: Optional. Control label.</li>
             <li><code>placeholder</code>: Optional. Control placeholder.</li>
             <li><code>disabled</code>: Whether the control can be edited. Defaults to false.</li>
@@ -292,7 +292,74 @@ fields = [{
 </pre>
         </div>
       </div>
+          <h3>Nested Objects</h3>
+          <p>
+            Backform supports nested object attributes, including complex nested objects.
+          </p>
+      <div class="row">
+        <div class="col-md-6">
+          <form id="form-nested" class="form-horizontal"></form>
+        </div>
+        <div class="col-md-6">
+          <pre id="nested-object"></pre>
+        </div>
+      </div>
 
+      <div class="row">
+        <div class="col-md-12">
+          <p><button class="btn btn-primary show-code" for="#form-code-nested">&lt;/&gt; Show Code</button></p>
+          <pre id="form-code-nested" style="display:none;">
+var personAndFamily = new Backbone.Model({
+    "firstName": "Andre",
+    "lastName": "Jones",
+    "relatives": {
+      "mother": {
+        "firstName": "Elizabeth",
+        "lastName": "Jones"
+      },
+      "father": {
+        "firstName": "Douglas",
+        "lastName": "Jones"
+      }
+    }
+  });
+
+new Backform.Form({
+  el: "#form-nested",
+  model: personAndFamily,
+  fields: [
+    {name: "firstName", label: "First Name", control: "input"},
+    {name: "lastName", label: "Last Name", control: "input"},
+    {
+      name: "relatives",
+      label: "Mother's First Name",
+      nested: "mother.firstName",
+      control: "input",
+    }, {
+      name: "relatives",
+      label: "Mother's Last Name",
+      nested: "mother.lastName",
+      control: "input",
+    }, {
+      name: "relatives",
+      label: "Father's First Name",
+      nested: "father.firstName",
+      control: "input",
+    }, {
+      name: "relatives",
+      label: "Father's Last Name",
+      nested: "father.lastName",
+      control: "input",
+    }
+  ]
+}).render();
+
+personAndFamily.on("change", function() {
+  $("#nested-object").text(JSON.stringify(personAndFamily.toJSON(), null, 2));
+}).trigger("change");
+</pre>
+        </div>
+      </div>
       <div class="row">
         <div class="col-md-12">
           <h2 id="Controls">Controls</h2>
@@ -366,6 +433,7 @@ getValueFromDOM: function() {
   return JSON.parse(this.$el.find("input:checked").val());
 },
 </pre>
+
           <h3>Extending Controls</h3>
           <p>
             You can conditionally show a control by extending it. Since it is a Backbone view, you can extend the render function. For example:
