@@ -193,7 +193,7 @@
       for (var i=0; i < path.length; i++) {
         if (res[path[i]]) res=res[path[i]];
       }
-      return _.isObject(res) ? null : res;
+      return _.isObject(res) && !_.isArray(res) ? null : res;
     },
     keyPathSetter: function(obj, path, value) {
       path = path.split('.');
