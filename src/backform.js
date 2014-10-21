@@ -150,8 +150,10 @@
         changes[name] = _.clone(model.get(name)) || {};
         this.keyPathSetter(changes[name], nested, value);
       }
-      model.set(changes, {silent: true}); // Make sure that change event is fired for nested objects
-      model.trigger('change');
+      this.stopListening(this.model, "change:" + name, this.render);
+      model.set(changes);
+      this.listenTo(this.model, "change:" + name, this.render);
+      //model.trigger('change');
     },
     render: function() {
       var field = _.defaults(this.field.toJSON(), this.defaults),
