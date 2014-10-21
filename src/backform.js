@@ -153,7 +153,6 @@
       this.stopListening(this.model, "change:" + name, this.render);
       model.set(changes);
       this.listenTo(this.model, "change:" + name, this.render);
-      //model.trigger('change');
     },
     render: function() {
       var field = _.defaults(this.field.toJSON(), this.defaults),
