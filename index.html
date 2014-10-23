@@ -180,6 +180,17 @@ person.on("change", function() {
   $("#object").text(JSON.stringify(person.toJSON(), null, 2));
 }).trigger("change");
 </pre>
+          <h2>Installation</h2>
+          <p>Backform is one single file which creates a new global <code>Backform</code>. Include it after you load Underscore and Backbone.</p>
+          <pre>
+&lt;script src="underscore.js" type="text/javascript"&gt;&lt;/script&gt;
+&lt;script src="backbone.js" type="text/javascript"&gt;&lt;/script&gt;
+&lt;script src="backform.js" type="text/javascript"&gt;&lt;/script&gt;
+</pre>
+          <p>Or, if you use <a href="" target="_blank">Bower</a>:</p>
+          <pre>
+$ bower install backform
+</pre>
         </div>
       </div>
       <br/>
