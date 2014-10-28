@@ -227,7 +227,7 @@
       '<div class="<%=Backform.controlsClassName%>">',
       '  <textarea class="<%=Backform.controlClassName%> <%=extraClasses.join(\' \')%>" name="<%=name%>" maxlength="<%=maxlength%>" data-nested="<%=nested%>" placeholder="<%-placeholder%>" <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%>><%-value%></textarea>',
       '  <% if (helpMessage.length) { %>',
-      '    <p class="help-message"><%=helpMessage%></p>',
+      '    <p class="help-message small"><%=helpMessage%></p>',
       '  <% } %>',
       '</div>'
     ].join("\n")),
@@ -277,7 +277,7 @@
       '<div class="<%=Backform.controlsClassName%>">',
       '  <input type="<%=type%>" class="<%=Backform.controlClassName%> <%=extraClasses.join(\' \')%>" name="<%=name%>" maxlength="<%=maxlength%>" data-nested="<%=nested%>" value="<%-value%>" placeholder="<%-placeholder%>" <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%> />',
       '  <% if (helpMessage.length) { %>',
-      '    <p class="help-message"><%=helpMessage%></p>',
+      '    <p class="help-message small"><%=helpMessage%></p>',
       '  <% } %>',
       '</div>'
     ].join("\n")),

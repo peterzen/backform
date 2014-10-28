@@ -63,7 +63,7 @@ $(document).ready(function() {
         ]
       },
       {name: "dateOfBirth", label: "Date of birth", control: "datepicker", options: {format: "yyyy-mm-dd"}},
-      {name: "lifeGoal", label: "Life goal", control: "textarea"}
+      {name: "lifeGoal", label: "Life goal", control: "textarea", extraClasses: ["fancy"], helpMessage: "Be creative!"}
     ]
   }).render();
 
