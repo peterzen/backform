@@ -6,7 +6,7 @@
   Written by Martin Drapeau
   Licensed under the MIT @license
  */
-(function(){
+(function() {
 
   // Backform namespace and global options
   Backform = {
@@ -37,9 +37,9 @@
       });
     },
     // https://github.com/wyuenho/backgrid/blob/master/lib/backgrid.js
-    resolveNameToClass: function (name, suffix) {
+    resolveNameToClass: function(name, suffix) {
       if (_.isString(name)) {
-        var key = _.map(name.split('-'), function (e) {
+        var key = _.map(name.split('-'), function(e) {
           return e.slice(0, 1).toUpperCase() + e.slice(1);
         }).join('') + suffix;
         var klass = Backform[key];
@@ -165,7 +165,7 @@
     },
     clearInvalid: function() {
       this.$el.removeClass(Backform.errorClassName)
-        .find("."+Backform.helpClassName+".error").remove();
+        .find("." + Backform.helpClassName + ".error").remove();
       return this;
     },
     updateInvalid: function() {
@@ -183,16 +183,16 @@
       if (_.isEmpty(error)) return;
 
       this.$el.addClass(Backform.errorClassName);
-      this.$el.find("."+Backform.controlsClassName)
-        .append('<span class="'+Backform.helpClassName+' error">' + (_.isArray(error) ? error.join(", ") : error) + '</span>');
+      this.$el.find("." + Backform.controlsClassName)
+        .append('<span class="' + Backform.helpClassName + ' error">' + (_.isArray(error) ? error.join(", ") : error) + '</span>');
 
       return this;
     },
     keyPathAccessor: function(obj, path) {
       var res = obj;
       path = path.split('.');
-      for (var i=0; i < path.length; i++) {
-        if (res[path[i]]) res=res[path[i]];
+      for (var i = 0; i < path.length; i++) {
+        if (res[path[i]]) res = res[path[i]];
       }
       return _.isObject(res) && !_.isArray(res) ? null : res;
     },
@@ -217,12 +217,19 @@
   });
 
   var TextareaControl = Backform.TextareaControl = Control.extend({
-    defaults: {},
+    defaults: {
+      maxlength: 4000,
+      extraClasses: [],
+      helpMessage: ''
+    },
     template: _.template([
       '<label class="<%=Backform.controlLabelClassName%>"><%-label%></label>',
       '<div class="<%=Backform.controlsClassName%>">',
-      '  <textarea class="<%=Backform.controlClassName%>" name="<%=name%>" data-nested="<%=nested%>" placeholder="<%-placeholder%>" <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%>><%-value%></textarea>',
-      '</div>',
+      '  <textarea class="<%=Backform.controlClassName%> <%=extraClasses.join(\' \')%>" name="<%=name%>" maxlength="<%=maxlength%>" data-nested="<%=nested%>" placeholder="<%-placeholder%>" <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%>><%-value%></textarea>',
+      '  <% if (helpMessage.length) { %>',
+      '    <p class="help-message"><%=helpMessage%></p>',
+      '  <% } %>',
+      '</div>'
     ].join("\n")),
     events: {
       "change textarea": "onChange",
@@ -235,18 +242,19 @@
 
   var SelectControl = Backform.SelectControl = Control.extend({
     defaults: {
-      options: [] // List of options as [{label:<label>, value:<value>}, ...]
+      options: [], // List of options as [{label:<label>, value:<value>}, ...]
+      extraClasses: []
     },
     template: _.template([
       '<label class="<%=Backform.controlLabelClassName%>"><%-label%></label>',
       '<div class="<%=Backform.controlsClassName%>">',
-      '  <select class="<%=Backform.controlClassName%>" name="<%=name%>" data-nested="<%=nested%>" value="<%-JSON.stringify(value)%>" <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%> >',
+      '  <select class="<%=Backform.controlClassName%> <%=extraClasses.join(\' \')%>" name="<%=name%>" data-nested="<%=nested%>" value="<%-JSON.stringify(value)%>" <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%> >',
       '    <% for (var i=0; i < options.length; i++) { %>',
       '      <% var option = options[i]; %>',
       '      <option value="<%-JSON.stringify(option.value)%>" <%=option.value == value ? "selected=\'selected\'" : ""%>><%-option.label%></option>',
       '    <% } %>',
       '  </select>',
-      '</div>',
+      '</div>'
     ].join("\n")),
     events: {
       "change select": "onChange",
@@ -259,13 +267,19 @@
 
   var InputControl = Backform.InputControl = Control.extend({
     defaults: {
-      type: "text"
+      type: "text",
+      maxlength: 255,
+      extraClasses: [],
+      helpMessage: ''
     },
     template: _.template([
       '<label class="<%=Backform.controlLabelClassName%>"><%-label%></label>',
       '<div class="<%=Backform.controlsClassName%>">',
-      '  <input type="<%=type%>" class="<%=Backform.controlClassName%>" name="<%=name%>" data-nested="<%=nested%>" value="<%-value%>" placeholder="<%-placeholder%>" <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%> />',
-      '</div>',
+      '  <input type="<%=type%>" class="<%=Backform.controlClassName%> <%=extraClasses.join(\' \')%>" name="<%=name%>" maxlength="<%=maxlength%>" data-nested="<%=nested%>" value="<%-value%>" placeholder="<%-placeholder%>" <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%> />',
+      '  <% if (helpMessage.length) { %>',
+      '    <p class="help-message"><%=helpMessage%></p>',
+      '  <% } %>',
+      '</div>'
     ].join("\n")),
     events: {
       "change input": "onChange",
@@ -278,17 +292,18 @@
 
   var BooleanControl = Backform.BooleanControl = InputControl.extend({
     defaults: {
-      type: "checkbox"
+      type: "checkbox",
+      extraClasses: []
     },
     template: _.template([
       '<label class="<%=Backform.controlLabelClassName%>">&nbsp;</label>',
       '<div class="<%=Backform.controlsClassName%>">',
       '  <div class="checkbox">',
       '    <label>',
-      '      <input type="<%=type%>" name="<%=name%>" data-nested="<%=nested%>" <%=value ? "checked=\'checked\'" : ""%> <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%> /> <%-label%>',
+      '      <input type="<%=type%>" class="<%=extraClasses.join(\' \')%>" name="<%=name%>" data-nested="<%=nested%>" <%=value ? "checked=\'checked\'" : ""%> <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%> /> <%-label%>',
       '    </label>',
       '  </div>',
-      '</div>',
+      '</div>'
     ].join("\n")),
     getValueFromDOM: function() {
       return this.$el.find("input").is(":checked");
@@ -300,7 +315,8 @@
   var RadioControl = Backform.RadioControl = InputControl.extend({
     defaults: {
       type: "radio",
-      options: []
+      options: [],
+      extraClasses: []
     },
     template: _.template([
       '<label class="<%=Backform.controlLabelClassName%>"><%-label%></label>',
@@ -308,10 +324,10 @@
       '  <% for (var i=0; i < options.length; i++) { %>',
       '    <% var option = options[i]; %>',
       '    <label class="<%=Backform.radioLabelClassName%>">',
-      '      <input type="<%=type%>" name="<%=name%>" data-nested="<%=nested%>" value="<%-JSON.stringify(option.value)%>" <%=value == option.value ? "checked=\'checked\'" : ""%> <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%> /> <%-option.label%>',
+      '      <input type="<%=type%>" class="<%=extraClasses.join(\' \')%>" name="<%=name%>" data-nested="<%=nested%>" value="<%-JSON.stringify(option.value)%>" <%=value == option.value ? "checked=\'checked\'" : ""%> <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%> /> <%-option.label%>',
       '    </label>',
       '  <% } %>',
-      '</div>',
+      '</div>'
     ].join("\n")),
     getValueFromDOM: function() {
       return JSON.parse(this.$el.find("input:checked").val());
@@ -330,7 +346,10 @@
   var DatepickerControl = Backform.DatepickerControl = InputControl.extend({
     defaults: {
       type: "text",
-      options: {}
+      options: {},
+      extraClasses: [],
+      maxlength: 255,
+      helpMessage: ''
     },
     events: {
       "changeDate input": "onChange",
@@ -347,12 +366,13 @@
     defaults: {
       type: "submit",
       status: undefined, // error or success
-      message: undefined
+      message: undefined,
+      extraClasses: []
     },
     template: _.template([
       '<label class="<%=Backform.controlLabelClassName%>"><%-label%></label>',
       '<div class="<%=Backform.controlsClassName%>">',
-      '  <button type="<%=type%>" class="btn btn-default" <%=disabled ? "disabled" : ""%> >Submit</button>',
+      '  <button type="<%=type%>" class="btn btn-default <%=extraClasses.join(\' \')%>" <%=disabled ? "disabled" : ""%> >Submit</button>',
       '  <% var cls = ""; if (status == "error") cls = Backform.buttonStatusErrorClassName; if (status == "success") cls = Backform.buttonStatusSuccessClassname; %>',
       '  <span class="status <%=cls%>"><%=message%></span>',
       '</div>'
