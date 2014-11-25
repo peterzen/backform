@@ -19,6 +19,7 @@
     controlClassName: "form-control",
     helpClassName: "help-block",
     errorClassName: "has-error",
+    helpMessageClassName: "help-block",
 
     // Bootstrap 2.3 adapter
     bootstrap2: function() {
@@ -28,7 +29,8 @@
         controlsClassName: "controls",
         controlClassName: "input-xlarge",
         helpClassName: "text-error",
-        errorClassName: "error"
+        errorClassName: "error",
+        helpMessageClassName: "help-message small"
       });
       _.each(Backform, function(value, name) {
         if (_.isFunction(Backform[name]) &&
@@ -159,7 +161,7 @@
           attributes = this.model.toJSON(),
           value = field.nested ? this.keyPathAccessor(attributes[field.name], field.nested) : attributes[field.name],
           data = _.extend(field, {value: value, attributes: attributes});
-      this.$el.html(this.template(data));
+      this.$el.html(this.template(data)).addClass(field.name);
       this.updateInvalid();
       return this;
     },
@@ -209,6 +211,15 @@
 
   var UneditableInputControl = Backform.UneditableInputControl = Control;
 
+  var HelpControl = Backform.HelpControl = Control.extend({
+    template: _.template([
+      '<label class="<%=Backform.controlLabelClassName%>">&nbsp;</label>',
+      '<div class="<%=Backform.controlsClassName%>">',
+      '  <span class="<%=Backform.helpMessageClassName%> help-block"><%=label%></span>',
+      '</div>'
+    ].join("\n"))
+  });
+
   var SpacerControl = Backform.SpacerControl = Control.extend({
     template: _.template([
       '<label class="<%=Backform.controlLabelClassName%>">&nbsp;</label>',
@@ -220,14 +231,14 @@
     defaults: {
       maxlength: 4000,
       extraClasses: [],
-      helpMessage: ''
+      helpMessage: ""
     },
     template: _.template([
       '<label class="<%=Backform.controlLabelClassName%>"><%-label%></label>',
       '<div class="<%=Backform.controlsClassName%>">',
       '  <textarea class="<%=Backform.controlClassName%> <%=extraClasses.join(\' \')%>" name="<%=name%>" maxlength="<%=maxlength%>" data-nested="<%=nested%>" placeholder="<%-placeholder%>" <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%>><%-value%></textarea>',
       '  <% if (helpMessage.length) { %>',
-      '    <p class="help-message small"><%=helpMessage%></p>',
+      '    <span class="<%=Backform.helpMessageClassName%>"><%=helpMessage%></span>',
       '  <% } %>',
       '</div>'
     ].join("\n")),
@@ -277,7 +288,7 @@
       '<div class="<%=Backform.controlsClassName%>">',
       '  <input type="<%=type%>" class="<%=Backform.controlClassName%> <%=extraClasses.join(\' \')%>" name="<%=name%>" maxlength="<%=maxlength%>" data-nested="<%=nested%>" value="<%-value%>" placeholder="<%-placeholder%>" <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%> />',
       '  <% if (helpMessage.length) { %>',
-      '    <p class="help-message small"><%=helpMessage%></p>',
+      '    <span class="<%=Backform.helpMessageClassName%>"><%=helpMessage%></span>',
       '  <% } %>',
       '</div>'
     ].join("\n")),
