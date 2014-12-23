@@ -173,7 +173,17 @@ new Backform.Form({
     },
     {name: "dateOfBirth", label: "Date of birth", control: "datepicker", options: {format: "yyyy-mm-dd"}},
     {name: "lifeGoal", label: "Life goal", control: "textarea", extraClasses: ["fancy"], helpMessage: "Be creative!"}
-  ]
+    {control: "button", label: "Save to server"}
+    ],
+  events: {
+    "submit": function(e) {
+      e.preventDefault();
+      this.model.save().done(function(result) {
+        alert("Form saved to server!");
+      });
+      return false;
+    }
+  }
 }).render();
 
 person.on("change", function() {
@@ -224,6 +234,7 @@ $ npm install backform
           <p>
             To create a form, you instantiate a Backform.Form view. You pass it a definition of fields.
             A field maps a model attribute to a form control. For example:
+          </p>
 <pre>
 var person = new Backbone.Model({
   id: 101,
@@ -246,16 +257,34 @@ var fields = [{
     control: "input",
     extraClasses: ["fancy"],
     helpMessage: "Be creative!"
-}];
+  }, {
+    control: "submit",
+    label: "Save to server"
+  }];
 
 var form = new Backform.Form({
   el: $("#form"),
   model: person,
-  fields: fields // Will get converted to a collection of Backbone.Field models
+  fields: fields, // Will get converted to a collection of Backbone.Field models
+  events: {
+    "submit": function(e) {
+      e.preventDefault();
+      this.model.save()
+        .done(function(result) {
+          alert("Successful!");
+        })
+        .fail(function(error) {
+          alert(error);
+        });
+      return false;
+    }
+  }
 });
 form.render(); // Backform.*Control views are created for each field and rendered on screen
 </pre>
-          </p>
+        <p>
+          To save to the server, trap the <code>submit</code> event and call the model's <code>save</code> method.
+        </p>
         </div>
       </div>
 

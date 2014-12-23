@@ -1,5 +1,12 @@
 $(document).ready(function() {
 
+  // Mock Backbone.sync
+  Backbone.sync = function(method, model, options) {
+    var deferred = $.Deferred();
+    deferred.resolve(model.toJSON());
+    return deferred.promise();
+  };
+
   // Backform example - a person model with a nested address object
   var person = window.person = new Backbone.Model({
     id: 101,
@@ -63,8 +70,19 @@ $(document).ready(function() {
         ]
       },
       {name: "dateOfBirth", label: "Date of birth", control: "datepicker", options: {format: "yyyy-mm-dd"}},
-      {name: "lifeGoal", label: "Life goal", control: "textarea", extraClasses: ["fancy"], helpMessage: "Be creative!"}
-    ]
+      {name: "lifeGoal", label: "Life goal", control: "textarea", extraClasses: ["fancy"], helpMessage: "Be creative!"},
+      {control: "button", label: "Save to server"}
+    ],
+    events: {
+      "submit": function(e) {
+        e.preventDefault();
+        this.model.save().done(function(result) {
+          console.log(result);
+          alert("Form saved to server!");
+        });
+        return false;
+      }
+    }
   }).render();
 
   person.on("change", function() {
