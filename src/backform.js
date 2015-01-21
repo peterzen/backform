@@ -149,8 +149,10 @@
           this.model.errorModel.unset(name);
         } else {
           var nestedError = this.model.errorModel.get(name);
-          this.keyPathSetter(nestedError, path, null);
-          this.model.errorModel.set(name, nestedError);
+          if (nestedError) {
+            this.keyPathSetter(nestedError, path, null);
+            this.model.errorModel.set(name, nestedError);
+          }
         }
       }
 
