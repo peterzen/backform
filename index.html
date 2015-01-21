@@ -146,13 +146,12 @@ new Backform.Form({
       ]
     },
     {control: "spacer"},
-    {name: "address", nested: "address1", label: "Address1", control: "input"},
-    {name: "address", nested: "address2", label: "Address2", control: "input"},
-    {name: "address", nested: "city", label: "City", control: "input"},
-    {name: "address", nested: "postalCode", label: "Postal Code", control: "input"},
+    {name: "address.address1", label: "Address1", control: "input"},
+    {name: "address.address2", label: "Address2", control: "input"},
+    {name: "address.city", label: "City", control: "input"},
+    {name: "address.postalCode", label: "Postal Code", control: "input"},
     {
-      name: "address",
-      nested: "province",
+      name: "address.province",
       label: "Province",
       control: "select",
       options: [
@@ -300,8 +299,8 @@ form.render(); // Backform.*Control views are created for each field and rendere
             A Backform.Field can contain these options which get translated to model attributes.
           </p>
           <ul>
-            <li><code>name</code>: Key of the model attribute to reference.</li>
-            <li><code>nested</code>: Optional. If the model attribute is an object, nested attribute key to display (and update). Multiple levels of nesting are supported via <i>x.y.z</i> syntax.</li>
+            <li><code>name</code>: Key of the model attribute to reference. If the model attribute contains nested values, these may be accessed via <i>x.y.z</i> syntax, where <i>x</i> is the model attribute and <i>y, z</i> are nested objects.</li>
+            <li><code>nested</code>: <i>Deprecated</i>. Nested values are now specified in the <code>name</code> option.</li>
             <li><code>label</code>: Optional. Control label.</li>
             <li><code>placeholder</code>: Optional. Control placeholder.</li>
             <li><code>disabled</code>: Whether the control can be edited. Defaults to false.</li>
@@ -377,24 +376,20 @@ new Backform.Form({
     {name: "firstName", label: "First Name", control: "input"},
     {name: "lastName", label: "Last Name", control: "input"},
     {
-      name: "relatives",
+      name: "relatives.mother.firstName",
       label: "Mother's First Name",
-      nested: "mother.firstName",
       control: "input",
     }, {
-      name: "relatives",
+      name: "relatives.mother.lastName",
       label: "Mother's Last Name",
-      nested: "mother.lastName",
       control: "input",
     }, {
-      name: "relatives",
+      name: "relatives.father.firstName",
       label: "Father's First Name",
-      nested: "father.firstName",
       control: "input",
     }, {
-      name: "relatives",
+      name: "relatives.father.lastName",
       label: "Father's Last Name",
-      nested: "father.lastName",
       control: "input",
     }
   ]
@@ -464,7 +459,7 @@ var InputControl = Backform.InputControl = Control.extend({
           <pre>
 &lt;label class="&lt;%=Backform.controlLabelClassName%&gt;"&gt;&lt;%-label%&gt;&lt;/label&gt;
 &lt;div class="&lt;%=Backform.controlsClassName%&gt;"&gt;
-  &lt;input type="&lt;%=type%&gt;" class="&lt;%=Backform.controlClassName%&gt;" name="&lt;%=name%&gt;" data-nested="&lt;%=nested%&gt;" value="&lt;%-value%&gt;" placeholder="&lt;%-placeholder%&gt;" &lt;%=disabled ? "disabled" : ""%&gt; &lt;%=required ? "required" : ""%&gt; /&gt;
+  &lt;input type="&lt;%=type%&gt;" class="&lt;%=Backform.controlClassName%&gt;" name="&lt;%=name%&gt;" value="&lt;%-value%&gt;" placeholder="&lt;%-placeholder%&gt;" &lt;%=disabled ? "disabled" : ""%&gt; &lt;%=required ? "required" : ""%&gt; /&gt;
 &lt;/div&gt;
 </pre>
           <p class="note">See the <a href="#Markup">HTML Markup</a> section for more information on HTML elements.</p>
@@ -647,7 +642,7 @@ $("#form-email").on("submit", function(e) {
   &lt;div class="form-group"&gt; &lt;!-- form group --&gt;
     &lt;label class="col-sm-4 control-label"&gt;First Name&lt;/label&gt; &lt;!-- label --&gt;
     &lt;div class="col-sm-8"&gt; &lt;!-- controls --&gt;
-      &lt;input type="text" class="form-control" name="firstName" data-nested="" value="Andre" placeholder="" /&gt; &lt;!-- control --&gt;
+      &lt;input type="text" class="form-control" name="firstName" value="Andre" placeholder="" /&gt; &lt;!-- control --&gt;
     &lt;/div&gt;
   &lt;/div&gt;
   ...

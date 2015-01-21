@@ -92,8 +92,7 @@
   // A field maps a model attriute to a control for rendering and capturing user input
   var Field = Backform.Field = Backbone.Model.extend({
     defaults: {
-      name: "", // Name of the model attribute
-      nested: undefined, // Optional. If model attribute is an object, nested attribute to display (and update)
+      name: "", // Name of the model attribute; accepts "." nested path (e.g. x.y.z)
       label: "",
       placeholder: "",
       disabled: false,
@@ -139,19 +138,19 @@
       var model = this.model,
           $el = $(e.target),
           name = this.field.get("name"),
-          nested = this.field.get("nested"),
           value = this.getValueFromDOM(),
           changes = {};
 
       if (this.model.errorModel instanceof Backbone.Model)
         this.model.errorModel.unset(name);
 
-      if (_.isEmpty(nested)) {
-        changes[name] = value;
-      } else {
-        changes[name] = _.clone(model.get(name)) || {};
-        this.keyPathSetter(changes[name], nested, value);
-      }
+      var attrArr = name.split('.'),
+          attr = attrArr.shift(),
+          path = attrArr.join('.');
+
+      changes[attr] = _.isEmpty(path) ? value : _.clone(model.get(attr)) || {};
+
+      if (!_.isEmpty(path)) this.keyPathSetter(changes[attr], path, value);
       this.stopListening(this.model, "change:" + name, this.render);
       model.set(changes);
       this.listenTo(this.model, "change:" + name, this.render);
@@ -159,8 +158,12 @@
     render: function() {
       var field = _.defaults(this.field.toJSON(), this.defaults),
           attributes = this.model.toJSON(),
-          value = field.nested ? this.keyPathAccessor(attributes[field.name], field.nested) : attributes[field.name],
+          attrArr = field.name.split('.'),
+          attr = attrArr.shift(),
+          path = attrArr.join('.'),
+          value = this.keyPathAccessor(attributes[attr], path),
           data = _.extend(field, {value: value, attributes: attributes});
+
       this.$el.html(this.template(data)).addClass(field.name);
       this.updateInvalid();
       return this;
@@ -176,12 +179,14 @@
 
       this.clearInvalid();
 
-      var name = this.field.get("name"),
-          nested = this.field.get("nested"),
-          error = errorModel.get(this.field.get("name"));
+      var attrArr = this.field.get('name').split('.'),
+          attr = attrArr.shift(),
+          path = attrArr.join('.'),
+          error = errorModel.get(attr);
+
       if (_.isEmpty(error)) return;
 
-      if (nested && _.isObject(error)) error = this.keyPathAccessor(error, nested);
+      if (_.isObject(error)) error = this.keyPathAccessor(error, path);
       if (_.isEmpty(error)) return;
 
       this.$el.addClass(Backform.errorClassName);
@@ -194,6 +199,7 @@
       var res = obj;
       path = path.split('.');
       for (var i = 0; i < path.length; i++) {
+        if (_.isEmpty(path[i])) continue;
         if (!_.isUndefined(res[path[i]])) res = res[path[i]];
       }
       return _.isObject(res) && !_.isArray(res) ? null : res;
@@ -236,7 +242,7 @@
     template: _.template([
       '<label class="<%=Backform.controlLabelClassName%>"><%-label%></label>',
       '<div class="<%=Backform.controlsClassName%>">',
-      '  <textarea class="<%=Backform.controlClassName%> <%=extraClasses.join(\' \')%>" name="<%=name%>" maxlength="<%=maxlength%>" data-nested="<%=nested%>" placeholder="<%-placeholder%>" <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%>><%-value%></textarea>',
+      '  <textarea class="<%=Backform.controlClassName%> <%=extraClasses.join(\' \')%>" name="<%=name%>" maxlength="<%=maxlength%>" placeholder="<%-placeholder%>" <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%>><%-value%></textarea>',
       '  <% if (helpMessage.length) { %>',
       '    <span class="<%=Backform.helpMessageClassName%>"><%=helpMessage%></span>',
       '  <% } %>',
@@ -259,7 +265,7 @@
     template: _.template([
       '<label class="<%=Backform.controlLabelClassName%>"><%-label%></label>',
       '<div class="<%=Backform.controlsClassName%>">',
-      '  <select class="<%=Backform.controlClassName%> <%=extraClasses.join(\' \')%>" name="<%=name%>" data-nested="<%=nested%>" value="<%-JSON.stringify(value)%>" <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%> >',
+      '  <select class="<%=Backform.controlClassName%> <%=extraClasses.join(\' \')%>" name="<%=name%>" value="<%-JSON.stringify(value)%>" <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%> >',
       '    <% for (var i=0; i < options.length; i++) { %>',
       '      <% var option = options[i]; %>',
       '      <option value="<%-JSON.stringify(option.value)%>" <%=option.value == value ? "selected=\'selected\'" : ""%>><%-option.label%></option>',
@@ -286,7 +292,7 @@
     template: _.template([
       '<label class="<%=Backform.controlLabelClassName%>"><%-label%></label>',
       '<div class="<%=Backform.controlsClassName%>">',
-      '  <input type="<%=type%>" class="<%=Backform.controlClassName%> <%=extraClasses.join(\' \')%>" name="<%=name%>" maxlength="<%=maxlength%>" data-nested="<%=nested%>" value="<%-value%>" placeholder="<%-placeholder%>" <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%> />',
+      '  <input type="<%=type%>" class="<%=Backform.controlClassName%> <%=extraClasses.join(\' \')%>" name="<%=name%>" maxlength="<%=maxlength%>" value="<%-value%>" placeholder="<%-placeholder%>" <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%> />',
       '  <% if (helpMessage.length) { %>',
       '    <span class="<%=Backform.helpMessageClassName%>"><%=helpMessage%></span>',
       '  <% } %>',
@@ -311,7 +317,7 @@
       '<div class="<%=Backform.controlsClassName%>">',
       '  <div class="checkbox">',
       '    <label>',
-      '      <input type="<%=type%>" class="<%=extraClasses.join(\' \')%>" name="<%=name%>" data-nested="<%=nested%>" <%=value ? "checked=\'checked\'" : ""%> <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%> /> <%-label%>',
+      '      <input type="<%=type%>" class="<%=extraClasses.join(\' \')%>" name="<%=name%>" <%=value ? "checked=\'checked\'" : ""%> <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%> /> <%-label%>',
       '    </label>',
       '  </div>',
       '</div>'
@@ -335,7 +341,7 @@
       '  <% for (var i=0; i < options.length; i++) { %>',
       '    <% var option = options[i]; %>',
       '    <label class="<%=Backform.radioLabelClassName%>">',
-      '      <input type="<%=type%>" class="<%=extraClasses.join(\' \')%>" name="<%=name%>" data-nested="<%=nested%>" value="<%-JSON.stringify(option.value)%>" <%=value == option.value ? "checked=\'checked\'" : ""%> <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%> /> <%-option.label%>',
+      '      <input type="<%=type%>" class="<%=extraClasses.join(\' \')%>" name="<%=name%>" value="<%-JSON.stringify(option.value)%>" <%=value == option.value ? "checked=\'checked\'" : ""%> <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%> /> <%-option.label%>',
       '    </label>',
       '  <% } %>',
       '</div>'
@@ -384,7 +390,7 @@
     template: _.template([
       '<label class="<%=Backform.controlLabelClassName%>">&nbsp;</label>',
       '<div class="<%=Backform.controlsClassName%>">',
-      '  <button type="<%=type%>" class="btn btn-default <%=extraClasses.join(\' \')%>" <%=disabled ? "disabled" : ""%> ><%-label%></button>',
+      '  <button type="<%=type%>" name="<%=name%>" class="btn <%=extraClasses.join(\' \')%>" <%=disabled ? "disabled" : ""%> ><%-label%></button>',
       '  <% var cls = ""; if (status == "error") cls = Backform.buttonStatusErrorClassName; if (status == "success") cls = Backform.buttonStatusSuccessClassname; %>',
       '  <span class="status <%=cls%>"><%=message%></span>',
       '</div>'

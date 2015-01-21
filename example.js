@@ -44,13 +44,12 @@ $(document).ready(function() {
         ]
       },
       {control: "spacer"},
-      {name: "address", nested: "address1", label: "Address1", control: "input"},
-      {name: "address", nested: "address2", label: "Address2", control: "input"},
-      {name: "address", nested: "city", label: "City", control: "input"},
-      {name: "address", nested: "postalCode", label: "Postal Code", control: "input"},
+      {name: "address.address1", label: "Address1", control: "input"},
+      {name: "address.address2", label: "Address2", control: "input"},
+      {name: "address.city", label: "City", control: "input"},
+      {name: "address.postalCode", label: "Postal Code", control: "input"},
       {
-        name: "address",
-        nested: "province",
+        name: "address.province",
         label: "Province",
         control: "select",
         options: [
@@ -165,24 +164,20 @@ $(document).ready(function() {
       {name: "firstName", label: "First Name", control: "input"},
       {name: "lastName", label: "Last Name", control: "input"},
       {
-        name: "relatives",
+        name: "relatives.mother.firstName",
         label: "Mother's First Name",
-        nested: "mother.firstName",
         control: "input",
       }, {
-        name: "relatives",
+        name: "relatives.mother.lastName",
         label: "Mother's Last Name",
-        nested: "mother.lastName",
         control: "input",
       }, {
-        name: "relatives",
+        name: "relatives.father.firstName",
         label: "Father's First Name",
-        nested: "father.firstName",
         control: "input",
       }, {
-        name: "relatives",
+        name: "relatives.father.lastName",
         label: "Father's Last Name",
-        nested: "father.lastName",
         control: "input",
       }
     ]
