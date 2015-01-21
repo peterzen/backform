@@ -93,7 +93,6 @@
   var Field = Backform.Field = Backbone.Model.extend({
     defaults: {
       name: "", // Name of the model attribute; accepts "." nested path (e.g. x.y.z)
-      label: "",
       placeholder: "",
       disabled: false,
       required: false,
@@ -235,6 +234,7 @@
 
   var TextareaControl = Backform.TextareaControl = Control.extend({
     defaults: {
+      label: "",
       maxlength: 4000,
       extraClasses: [],
       helpMessage: ""
@@ -259,6 +259,7 @@
 
   var SelectControl = Backform.SelectControl = Control.extend({
     defaults: {
+      label: "",
       options: [], // List of options as [{label:<label>, value:<value>}, ...]
       extraClasses: []
     },
@@ -285,6 +286,7 @@
   var InputControl = Backform.InputControl = Control.extend({
     defaults: {
       type: "text",
+      label: "",
       maxlength: 255,
       extraClasses: [],
       helpMessage: ''
@@ -310,6 +312,7 @@
   var BooleanControl = Backform.BooleanControl = InputControl.extend({
     defaults: {
       type: "checkbox",
+      label: "",
       extraClasses: []
     },
     template: _.template([
@@ -332,6 +335,7 @@
   var RadioControl = Backform.RadioControl = InputControl.extend({
     defaults: {
       type: "radio",
+      label: "",
       options: [],
       extraClasses: []
     },
@@ -363,6 +367,7 @@
   var DatepickerControl = Backform.DatepickerControl = InputControl.extend({
     defaults: {
       type: "text",
+      label: "",
       options: {},
       extraClasses: [],
       maxlength: 255,
