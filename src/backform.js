@@ -194,7 +194,7 @@
       var res = obj;
       path = path.split('.');
       for (var i = 0; i < path.length; i++) {
-        if (res[path[i]]) res = res[path[i]];
+        if (!_.isUndefined(res[path[i]])) res = res[path[i]];
       }
       return _.isObject(res) && !_.isArray(res) ? null : res;
     },
