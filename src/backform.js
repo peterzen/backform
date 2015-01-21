@@ -125,7 +125,9 @@
     initialize: function(options) {
       this.field = options.field; // Back-reference to the field
 
-      var name = this.field.get("name");
+      var attrArr = this.field.get('name').split('.');
+      var name = attrArr.shift();
+
       this.listenTo(this.model, "change:" + name, this.render);
       if (this.model.errorModel instanceof Backbone.Model)
         this.listenTo(this.model.errorModel, "change:" + name, this.updateInvalid);
@@ -136,20 +138,25 @@
     onChange: function(e) {
       var model = this.model,
           $el = $(e.target),
-          name = this.field.get("name"),
+          attrArr = this.field.get("name").split('.'),
+          name = attrArr.shift(),
+          path = attrArr.join('.'),
           value = this.getValueFromDOM(),
           changes = {};
 
-      if (this.model.errorModel instanceof Backbone.Model)
-        this.model.errorModel.unset(name);
+      if (this.model.errorModel instanceof Backbone.Model) {
+        if (_.isEmpty(path)) {
+          this.model.errorModel.unset(name);
+        } else {
+          var nestedError = this.model.errorModel.get(name);
+          this.keyPathSetter(nestedError, path, null);
+          this.model.errorModel.set(name, nestedError);
+        }
+      }
 
-      var attrArr = name.split('.'),
-          attr = attrArr.shift(),
-          path = attrArr.join('.');
+      changes[name] = _.isEmpty(path) ? value : _.clone(model.get(name)) || {};
 
-      changes[attr] = _.isEmpty(path) ? value : _.clone(model.get(attr)) || {};
-
-      if (!_.isEmpty(path)) this.keyPathSetter(changes[attr], path, value);
+      if (!_.isEmpty(path)) this.keyPathSetter(changes[name], path, value);
       this.stopListening(this.model, "change:" + name, this.render);
       model.set(changes);
       this.listenTo(this.model, "change:" + name, this.render);
@@ -158,9 +165,9 @@
       var field = _.defaults(this.field.toJSON(), this.defaults),
           attributes = this.model.toJSON(),
           attrArr = field.name.split('.'),
-          attr = attrArr.shift(),
+          name = attrArr.shift(),
           path = attrArr.join('.'),
-          value = this.keyPathAccessor(attributes[attr], path),
+          value = this.keyPathAccessor(attributes[name], path),
           data = _.extend(field, {value: value, attributes: attributes});
 
       this.$el.html(this.template(data)).addClass(field.name);
@@ -179,12 +186,11 @@
       this.clearInvalid();
 
       var attrArr = this.field.get('name').split('.'),
-          attr = attrArr.shift(),
+          name = attrArr.shift(),
           path = attrArr.join('.'),
-          error = errorModel.get(attr);
+          error = errorModel.get(name);
 
       if (_.isEmpty(error)) return;
-
       if (_.isObject(error)) error = this.keyPathAccessor(error, path);
       if (_.isEmpty(error)) return;
 
