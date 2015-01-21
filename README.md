@@ -2,7 +2,7 @@ Backform
 ========
 
 Backform takes a Backbone model and transforms it into an HTML form.
-Any changes to the form are relfected back to the model and vice versa.
+Any changes to the form are reflected back to the model and vice versa.
 It comes with built-in controls for input, select, radio buttons, checkbox, etc.
 Backform controls are Backbone views and extensible.
 Backform even supports nested objects.
