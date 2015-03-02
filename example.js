@@ -22,7 +22,8 @@ $(document).ready(function() {
       province: "QC"
     },
     dateOfBirth: "1990-10-10",
-    lifeGoal: "To become the best basketball player there is. I want to dunk!"
+    lifeGoal: "To become the best basketball player there is. I want to dunk!",
+    jsonValue: null
   });
 
   new Backform.Form({
@@ -70,6 +71,20 @@ $(document).ready(function() {
       },
       {name: "dateOfBirth", label: "Date of birth", control: "datepicker", options: {format: "yyyy-mm-dd"}},
       {name: "lifeGoal", label: "Life goal", control: "textarea", extraClasses: ["fancy"], helpMessage: "Be creative!"},
+      {
+        name: "jsonValue",
+        label: "JSON value",
+        control: "select",
+        options: [
+          {label: "null", value: null},
+          {label: "true", value: true},
+          {label: "false", value: false},
+          {label: "0", value: 0},
+          {label: "1", value: 1},
+          {label: "99", value: 99},
+          {label: "a string", value: "a string"}
+        ]
+      },
       {control: "button", label: "Save to server"}
     ],
     events: {

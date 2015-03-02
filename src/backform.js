@@ -88,6 +88,66 @@
     }
   });
 
+  // Converting data to/from Model/DOM.
+  // Stolen directly from Backgrid's CellFormatter.
+  // Source: http://backgridjs.com/ref/formatter.html
+  /**
+     Just a convenient class for interested parties to subclass.
+
+     The default Cell classes don't require the formatter to be a subclass of
+     Formatter as long as the fromRaw(rawData) and toRaw(formattedData) methods
+     are defined.
+
+     @abstract
+     @class Backform.ControlFormatter
+     @constructor
+  */
+  var ControlFormatter = Backform.ControlFormatter = function() {};
+  _.extend(ControlFormatter.prototype, {
+
+    /**
+       Takes a raw value from a model and returns an optionally formatted string
+       for display. The default implementation simply returns the supplied value
+       as is without any type conversion.
+
+       @member Backform.ControlFormatter
+       @param {*} rawData
+       @param {Backbone.Model} model Used for more complicated formatting
+       @return {*}
+    */
+    fromRaw: function (rawData, model) {
+      return rawData;
+    },
+
+    /**
+       Takes a formatted string, usually from user input, and returns a
+       appropriately typed value for persistence in the model.
+
+       If the user input is invalid or unable to be converted to a raw value
+       suitable for persistence in the model, toRaw must return `undefined`.
+
+       @member Backform.ControlFormatter
+       @param {string} formattedData
+       @param {Backbone.Model} model Used for more complicated formatting
+       @return {*|undefined}
+    */
+    toRaw: function (formattedData, model) {
+      return formattedData;
+    }
+
+  });
+
+  // Store value in DOM as stringified JSON.
+  var JSONFormatter = Backform.JSONFormatter = function() {};
+  _.extend(JSONFormatter.prototype, {
+    fromRaw: function(rawData, model) {
+      return JSON.stringify(rawData);
+    },
+    toRaw: function(formattedData, model) {
+      return JSON.parse(formattedData);
+    }
+  });
+
   // Field model and collection
   // A field maps a model attriute to a control for rendering and capturing user input
   var Field = Backform.Field = Backbone.Model.extend({
@@ -97,7 +157,8 @@
       disabled: false,
       required: false,
       value: undefined, // Optional. Default value when model is empty.
-      control: undefined // Control name or class
+      control: undefined, // Control name or class
+      formatter: undefined
     },
     initialize: function() {
       var control = Backform.resolveNameToClass(this.get("control"), "Control");
@@ -108,7 +169,6 @@
   var Fields = Backform.Fields = Backbone.Collection.extend({
     model: Field
   });
-
 
   // Base Control class
   var Control = Backform.Control = Backbone.View.extend({
@@ -125,6 +185,12 @@
     initialize: function(options) {
       this.field = options.field; // Back-reference to the field
 
+      var formatter = Backform.resolveNameToClass(this.field.get("formatter") || this.formatter, "Formatter");
+      if (!_.isFunction(formatter.fromRaw) && !_.isFunction(formatter.toRaw)) {
+        formatter = new formatter();
+      }
+      this.formatter = formatter;
+
       var attrArr = this.field.get('name').split('.');
       var name = attrArr.shift();
 
@@ -132,8 +198,9 @@
       if (this.model.errorModel instanceof Backbone.Model)
         this.listenTo(this.model.errorModel, "change:" + name, this.updateInvalid);
     },
+    formatter: ControlFormatter,
     getValueFromDOM: function() {
-      return this.$el.find(".uneditable-input").text();
+      return this.formatter.toRaw(this.$el.find(".uneditable-input").text(), this.model);
     },
     onChange: function(e) {
       var model = this.model,
@@ -169,8 +236,13 @@
           attrArr = field.name.split('.'),
           name = attrArr.shift(),
           path = attrArr.join('.'),
-          value = this.keyPathAccessor(attributes[name], path),
-          data = _.extend(field, {value: value, attributes: attributes});
+          rawValue = this.keyPathAccessor(attributes[name], path),
+          data = _.extend(field, {
+            rawValue: rawValue,
+            value: this.formatter.fromRaw(rawValue, this.model),
+            attributes: attributes,
+            formatter: this.formatter
+          });
 
       this.$el.html(this.template(data)).addClass(field.name);
       this.updateInvalid();
@@ -206,6 +278,7 @@
       var res = obj;
       path = path.split('.');
       for (var i = 0; i < path.length; i++) {
+        if (_.isNull(res)) return null;
         if (_.isEmpty(path[i])) continue;
         if (!_.isUndefined(res[path[i]])) res = res[path[i]];
       }
@@ -214,6 +287,7 @@
     keyPathSetter: function(obj, path, value) {
       path = path.split('.');
       while (path.length > 1) {
+        if (!obj[path[0]]) obj[path[0]] = {};
         obj = obj[path.shift()];
       }
       return obj[path.shift()] = value;
@@ -261,7 +335,7 @@
       "focus textarea": "clearInvalid"
     },
     getValueFromDOM: function() {
-      return this.$el.find("textarea").val();
+      return this.formatter.toRaw(this.$el.find("textarea").val(), this.model);
     }
   });
 
@@ -274,10 +348,10 @@
     template: _.template([
       '<label class="<%=Backform.controlLabelClassName%>"><%-label%></label>',
       '<div class="<%=Backform.controlsClassName%>">',
-      '  <select class="<%=Backform.controlClassName%> <%=extraClasses.join(\' \')%>" name="<%=name%>" value="<%-JSON.stringify(value)%>" <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%> >',
+      '  <select class="<%=Backform.controlClassName%> <%=extraClasses.join(\' \')%>" name="<%=name%>" value="<%-value%>" <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%> >',
       '    <% for (var i=0; i < options.length; i++) { %>',
       '      <% var option = options[i]; %>',
-      '      <option value="<%-JSON.stringify(option.value)%>" <%=option.value == value ? "selected=\'selected\'" : ""%>><%-option.label%></option>',
+      '      <option value="<%-formatter.fromRaw(option.value)%>" <%=option.value === rawValue ? "selected=\'selected\'" : ""%> <%=option.disabled ? "disabled=\'disabled\'" : ""%>><%-option.label%></option>',
       '    <% } %>',
       '  </select>',
       '</div>'
@@ -286,8 +360,41 @@
       "change select": "onChange",
       "focus select": "clearInvalid"
     },
+    formatter: JSONFormatter,
     getValueFromDOM: function() {
-      return JSON.parse(this.$el.find("select").val());
+      return this.formatter.toRaw(this.$el.find("select").val(), this.model);
+    }
+  });
+
+  var MultiSelectControl = Backform.MultiSelectControl = Control.extend({
+    defaults: {
+      label: "",
+      options: [], // List of options as [{label:<label>, value:<value>}, ...]
+      extraClasses: [],
+      height: '78px'
+    },
+    template: _.template([
+      '<label class="<%=Backform.controlLabelClassName%>"><%-label%></label>',
+      '<div class="<%=Backform.controlsClassName%>">',
+      '  <select multiple="multiple" class="<%=Backform.controlClassName%> <%=extraClasses.join(\' \')%>" name="<%=name%>" value="<%-value%>" <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%> style="height:<%=height%>">',
+      '    <% for (var i=0; i < options.length; i++) { %>',
+      '      <% var option = options[i]; %>',
+      '      <option value="<%-formatter.fromRaw(option.value)%>" <%=option.value == rawValue ? "selected=\'selected\'" : ""%> <%=option.disabled ? "disabled=\'disabled\'" : ""%>><%-option.label%></option>',
+      '    <% } %>',
+      '  </select>',
+      '</div>'
+    ].join("\n")),
+    events: {
+      "change select": "onChange",
+      "dblclick select": "onDoubleClick",
+      "focus select": "clearInvalid"
+    },
+    formatter: JSONFormatter,
+    getValueFromDOM: function() {
+      return this.formatter.toRaw(this.$el.find("select").val(), this.model);
+    },
+    onDoubleClick: function(e) {
+      this.model.trigger('doubleclick', e);
     }
   });
 
@@ -313,7 +420,7 @@
       "focus input": "clearInvalid"
     },
     getValueFromDOM: function() {
-      return this.$el.find("input").val();
+      return this.formatter.toRaw(this.$el.find("input").val(), this.model);
     }
   });
 
@@ -321,10 +428,11 @@
     defaults: {
       type: "checkbox",
       label: "",
+      controlLabel: '&nbsp;',
       extraClasses: []
     },
     template: _.template([
-      '<label class="<%=Backform.controlLabelClassName%>">&nbsp;</label>',
+      '<label class="<%=Backform.controlLabelClassName%>"><%=controlLabel%></label>',
       '<div class="<%=Backform.controlsClassName%>">',
       '  <div class="checkbox">',
       '    <label>',
@@ -334,7 +442,7 @@
       '</div>'
     ].join("\n")),
     getValueFromDOM: function() {
-      return this.$el.find("input").is(":checked");
+      return this.formatter.toRaw(this.$el.find("input").is(":checked"), this.model);
     }
   });
 
@@ -353,13 +461,14 @@
       '  <% for (var i=0; i < options.length; i++) { %>',
       '    <% var option = options[i]; %>',
       '    <label class="<%=Backform.radioLabelClassName%>">',
-      '      <input type="<%=type%>" class="<%=extraClasses.join(\' \')%>" name="<%=name%>" value="<%-JSON.stringify(option.value)%>" <%=value == option.value ? "checked=\'checked\'" : ""%> <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%> /> <%-option.label%>',
+      '      <input type="<%=type%>" class="<%=extraClasses.join(\' \')%>" name="<%=name%>" value="<%-formatter.fromRaw(option.value)%>" <%=rawValue == option.value ? "checked=\'checked\'" : ""%> <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%> /> <%-option.label%>',
       '    </label>',
       '  <% } %>',
       '</div>'
     ].join("\n")),
+    formatter: JSONFormatter,
     getValueFromDOM: function() {
-      return JSON.parse(this.$el.find("input:checked").val());
+      return this.formatter.toRaw(this.$el.find("input:checked").val(), this.model);
     },
     bootstrap2: function() {
       Backform.radioControlsClassName = "controls";
@@ -368,7 +477,7 @@
   });
   _.extend(Backform, {
     radioControlsClassName: "checkbox",
-    radioLabelClassname: "checkbox-inline"
+    radioLabelClassName: "checkbox-inline"
   });
 
   // Requires the Bootstrap Datepicker to work.

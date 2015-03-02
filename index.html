@@ -171,7 +171,21 @@ new Backform.Form({
       ]
     },
     {name: "dateOfBirth", label: "Date of birth", control: "datepicker", options: {format: "yyyy-mm-dd"}},
-    {name: "lifeGoal", label: "Life goal", control: "textarea", extraClasses: ["fancy"], helpMessage: "Be creative!"}
+    {name: "lifeGoal", label: "Life goal", control: "textarea", extraClasses: ["fancy"], helpMessage: "Be creative!"},
+    {
+      name: "jsonValue",
+      label: "JSON value",
+      control: "select",
+      options: [
+        {label: "null", value: null},
+        {label: "true", value: true},
+        {label: "false", value: false},
+        {label: "0", value: 0},
+        {label: "1", value: 1},
+        {label: "99", value: 99},
+        {label: "a string", value: "a string"}
+      ]
+    },
     {control: "button", label: "Save to server"}
     ],
   events: {
@@ -221,6 +235,7 @@ $ npm install backform
             <li><code>Backform.Form</code>: A Backbone view which represents the FORM element.</li>
             <li><code>Backform.Field, Backform.Fields</code>: A Form contains a collection of Field models, which define the mapping of a model attribute to a form control.</li>
             <li><code>Backform.Control</code>: The base class of Backform controls. A Backbone view which represents a control group (<code>.form-group</code> element in Bootstrap). It implements the <code>render</code> and <code>onChange</code> methods required to keep the DOM and model in sync.</li>
+            <li><code>Backform.ControlFormatter</code>: Converts to/from raw JSON value to/from humanized form. Exactly like <a href="http://backgridjs.com/ref/formatter.html" target="_blank">Backgrid's CellFormatter</a>. </li>
             <li><code>Backform.InputControl, Backform.SelectControl, ...</code>: The controls themselves inheriting from Backform.Control. They can be extended or you can create your own from scratch.</li>
           </ul>
           <h2 id="Usage">Basic Usage</h2>
@@ -431,6 +446,7 @@ personAndFamily.on("change", function() {
               <li><code>defaults</code>: Extra options that can be passed in the field definition, with their default values.</li>
               <li><code>template</code>: An <a href="http://underscorejs.org/#template" target="_blank">underscore template</a> to render the control.</li>
               <li><code>getValueFromDOM</code>: A method to retrieve the value from the DOM and translate it to a model value.</li>
+              <li><code>formatter</code>: A control formatter to translate model values to/from human values. By default uses the <code>Backform.ControlFormatter</code> (described further below).</li>
             </ul>
             As an example this is the anatomy of the <code>Backform.InputControl</code> view:
           </p>
@@ -445,7 +461,7 @@ var InputControl = Backform.InputControl = Control.extend({
     "focus input": "clearInvalid" // Clear any errors when the user clicks inside the input (see invalid markup section)
   },
   getValueFromDOM: function() { // How the value is fetched from the DOM
-    return this.$el.find("input").val();
+    return this.formatter.toRaw(this.$el.find("input").val(), this.model);
   }
 });
 </pre>
@@ -453,8 +469,8 @@ var InputControl = Backform.InputControl = Control.extend({
           <h3>Rendering</h3>
           <p>
             The Control <code>render</code> method will use the <a href="http://underscorejs.org/#template" target="_blank">underscore <code>template</code></a> to render itself.
-            The template is passed the back-reference serialized field model, along with <code>attributes</code> (serialized form model) and <code>value</code> (the form model's attribute for this control as defined by <code>name</code> in the field).
-            For example, this is the InputControl's template:
+            The template is passed the back-reference serialized field model, along with <code>attributes</code> (serialized form model), <code>rawValue</code> (the form model's attribute for this control as defined by <code>name</code> in the field), and <code>value</code> (the humanized value converted using <code>formatter</code>'s <code>toRaw</code> function).
+            For example, this is the <code>InputControl</code>'s template:
           </p>
           <pre>
 &lt;label class="&lt;%=Backform.controlLabelClassName%&gt;"&gt;&lt;%-label%&gt;&lt;/label&gt;
@@ -462,19 +478,67 @@ var InputControl = Backform.InputControl = Control.extend({
   &lt;input type="&lt;%=type%&gt;" class="&lt;%=Backform.controlClassName%&gt;" name="&lt;%=name%&gt;" value="&lt;%-value%&gt;" placeholder="&lt;%-placeholder%&gt;" &lt;%=disabled ? "disabled" : ""%&gt; &lt;%=required ? "required" : ""%&gt; /&gt;
 &lt;/div&gt;
 </pre>
-          <p class="note">See the <a href="#Markup">HTML Markup</a> section for more information on HTML elements.</p>
+          <p>See the <a href="#Markup">HTML Markup</a> section for more information on HTML elements.</p>
 
           <h3>Keeping the model in sync with the DOM</h3>
           <p>
             Controls keep the form model in sync with the DOM by listening to <code>change</code> events, and then calling method <code>getValueFromDOM</code>.
             For an input, this consists in using jQuery's <code>val</code> method to retrieve the value.
-            You can override this method for further processing. For example, the RadioControl stores JSON data in the DOM.
+            Method <code>getValueFromDOM</code> must then call the <code>formatter</code>'s <code>toRaw</code> function. For example:
           </p>
           <pre>
 getValueFromDOM: function() {
-  return JSON.parse(this.$el.find("input:checked").val());
+  return this.formatter.toRaw(this.$el.find("input").val(), this.model);
 },
 </pre>
+          <p>
+            You can override this method to retrieve the value from the DOM differently.
+            For example look at <code>RadioControl</code>:
+          </p>
+          <pre>
+getValueFromDOM: function() {
+  return this.formatter.toRaw(this.$el.find("input:checked").val(), this.model);
+},
+</pre>
+
+          <h3>Control Formatters</h3>
+          <p>
+            Control formatters are used to convert raw model values to a human format so it can be rendered in the DOM.
+            They also convert back from human to raw JSON format.
+            A class formatter must have two functions: <code>fromRaw</code> (model value to human value) and <code>toRaw</code> (from human value to model value).
+            The default class <code>Backform.ControlFormatter</code> does no conversion:
+          </p>
+          <pre>
+fromRaw: function (rawData, model) {
+  return rawData;
+},
+toRaw: function (formattedData, model) {
+  return formattedData;
+}
+</pre>
+          <p>
+            You create your own formatters to store values differently in the DOM.
+            For example the <code>SelectControl</code> stores stringified JSON in the <code>SELECT</code> element's <code>value</code> attribute.
+            This allows you to use numerical values and even <code>null</code>, <code>true</code> or <code>false</code> (otherwise they would be converted to strings when storing in the DOM).
+            It uses the <code>Backform.JSONFormatter</code>:
+          </p>
+          <pre>
+var JSONFormatter = Backform.JSONFormatter = function() {};
+_.extend(JSONFormatter.prototype, {
+  fromRaw: function(rawData, model) {
+    return JSON.stringify(rawData);
+  },
+  toRaw: function(formattedData, model) {
+    return JSON.parse(formattedData);
+  }
+});
+...
+var SelectControl = Backform.SelectControl = Control.extend({
+  ...
+  formatter: JSONFormatter,
+  ...
+</pre>
+          <p class="alert alert-info">Formatters work exactly like those in Backgrid. Consult <a href="http://backgridjs.com/ref/formatter.html" target="_blank">Backgrid's Formatters documentation</a> for backgorund and philosophy.</p>
 
           <h3>Extending Controls</h3>
           <p>
