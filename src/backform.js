@@ -491,6 +491,8 @@
       helpMessage: ''
     },
     events: {
+      "blur input": "onChange",
+      "change input": "onChange",
       "changeDate input": "onChange",
       "focus input": "clearInvalid"
     },
