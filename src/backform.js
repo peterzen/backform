@@ -177,7 +177,7 @@
       return Backform.groupClassName;
     },
     template: _.template([
-      '<label class="<%=Backform.controlLabelClassName%>"><%-label%></label>',
+      '<label class="<%=Backform.controlLabelClassName%>"><%=label%></label>',
       '<div class="<%=Backform.controlsClassName%>">',
       '  <span class="<%=Backform.controlClassName%> uneditable-input"><%=value%></span>',
       '</div>'
@@ -322,7 +322,7 @@
       helpMessage: ""
     },
     template: _.template([
-      '<label class="<%=Backform.controlLabelClassName%>"><%-label%></label>',
+      '<label class="<%=Backform.controlLabelClassName%>"><%=label%></label>',
       '<div class="<%=Backform.controlsClassName%>">',
       '  <textarea class="<%=Backform.controlClassName%> <%=extraClasses.join(\' \')%>" name="<%=name%>" maxlength="<%=maxlength%>" placeholder="<%-placeholder%>" <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%>><%-value%></textarea>',
       '  <% if (helpMessage.length) { %>',
@@ -346,7 +346,7 @@
       extraClasses: []
     },
     template: _.template([
-      '<label class="<%=Backform.controlLabelClassName%>"><%-label%></label>',
+      '<label class="<%=Backform.controlLabelClassName%>"><%=label%></label>',
       '<div class="<%=Backform.controlsClassName%>">',
       '  <select class="<%=Backform.controlClassName%> <%=extraClasses.join(\' \')%>" name="<%=name%>" value="<%-value%>" <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%> >',
       '    <% for (var i=0; i < options.length; i++) { %>',
@@ -374,7 +374,7 @@
       height: '78px'
     },
     template: _.template([
-      '<label class="<%=Backform.controlLabelClassName%>"><%-label%></label>',
+      '<label class="<%=Backform.controlLabelClassName%>"><%=label%></label>',
       '<div class="<%=Backform.controlsClassName%>">',
       '  <select multiple="multiple" class="<%=Backform.controlClassName%> <%=extraClasses.join(\' \')%>" name="<%=name%>" value="<%-value%>" <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%> style="height:<%=height%>">',
       '    <% for (var i=0; i < options.length; i++) { %>',
@@ -407,7 +407,7 @@
       helpMessage: ''
     },
     template: _.template([
-      '<label class="<%=Backform.controlLabelClassName%>"><%-label%></label>',
+      '<label class="<%=Backform.controlLabelClassName%>"><%=label%></label>',
       '<div class="<%=Backform.controlsClassName%>">',
       '  <input type="<%=type%>" class="<%=Backform.controlClassName%> <%=extraClasses.join(\' \')%>" name="<%=name%>" maxlength="<%=maxlength%>" value="<%-value%>" placeholder="<%-placeholder%>" <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%> />',
       '  <% if (helpMessage.length) { %>',
@@ -436,7 +436,7 @@
       '<div class="<%=Backform.controlsClassName%>">',
       '  <div class="checkbox">',
       '    <label>',
-      '      <input type="<%=type%>" class="<%=extraClasses.join(\' \')%>" name="<%=name%>" <%=value ? "checked=\'checked\'" : ""%> <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%> /> <%-label%>',
+      '      <input type="<%=type%>" class="<%=extraClasses.join(\' \')%>" name="<%=name%>" <%=value ? "checked=\'checked\'" : ""%> <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%> /> <%=label%>',
       '    </label>',
       '  </div>',
       '</div>'
@@ -456,7 +456,7 @@
       extraClasses: []
     },
     template: _.template([
-      '<label class="<%=Backform.controlLabelClassName%>"><%-label%></label>',
+      '<label class="<%=Backform.controlLabelClassName%>"><%=label%></label>',
       '<div class="<%=Backform.controlsClassName%> <%=Backform.radioControlsClassName%>">',
       '  <% for (var i=0; i < options.length; i++) { %>',
       '    <% var option = options[i]; %>',
@@ -514,7 +514,7 @@
     template: _.template([
       '<label class="<%=Backform.controlLabelClassName%>">&nbsp;</label>',
       '<div class="<%=Backform.controlsClassName%>">',
-      '  <button type="<%=type%>" name="<%=name%>" class="btn <%=extraClasses.join(\' \')%>" <%=disabled ? "disabled" : ""%> ><%-label%></button>',
+      '  <button type="<%=type%>" name="<%=name%>" class="btn <%=extraClasses.join(\' \')%>" <%=disabled ? "disabled" : ""%> ><%=label%></button>',
       '  <% var cls = ""; if (status == "error") cls = Backform.buttonStatusErrorClassName; if (status == "success") cls = Backform.buttonStatusSuccessClassname; %>',
       '  <span class="status <%=cls%>"><%=message%></span>',
       '</div>'
