@@ -319,13 +319,13 @@
       label: "",
       maxlength: 4000,
       extraClasses: [],
-      helpMessage: ""
+      helpMessage: null
     },
     template: _.template([
       '<label class="<%=Backform.controlLabelClassName%>"><%=label%></label>',
       '<div class="<%=Backform.controlsClassName%>">',
       '  <textarea class="<%=Backform.controlClassName%> <%=extraClasses.join(\' \')%>" name="<%=name%>" maxlength="<%=maxlength%>" placeholder="<%-placeholder%>" <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%>><%-value%></textarea>',
-      '  <% if (helpMessage.length) { %>',
+      '  <% if (helpMessage && helpMessage.length) { %>',
       '    <span class="<%=Backform.helpMessageClassName%>"><%=helpMessage%></span>',
       '  <% } %>',
       '</div>'
@@ -379,7 +379,7 @@
       '  <select multiple="multiple" class="<%=Backform.controlClassName%> <%=extraClasses.join(\' \')%>" name="<%=name%>" value="<%-value%>" <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%> style="height:<%=height%>">',
       '    <% for (var i=0; i < options.length; i++) { %>',
       '      <% var option = options[i]; %>',
-      '      <option value="<%-formatter.fromRaw(option.value)%>" <%=option.value == rawValue ? "selected=\'selected\'" : ""%> <%=option.disabled ? "disabled=\'disabled\'" : ""%>><%-option.label%></option>',
+      '      <option value="<%-option.value%>"" <%=option.value == rawValue ? "selected=\'selected\'" : ""%> <%=option.disabled ? "disabled=\'disabled\'" : ""%>><%-option.label%></option>',
       '    <% } %>',
       '  </select>',
       '</div>'
@@ -391,7 +391,7 @@
     },
     formatter: JSONFormatter,
     getValueFromDOM: function() {
-      return this.formatter.toRaw(this.$el.find("select").val(), this.model);
+      return this.$el.find("select").val();
     },
     onDoubleClick: function(e) {
       this.model.trigger('doubleclick', e);
@@ -404,13 +404,13 @@
       label: "",
       maxlength: 255,
       extraClasses: [],
-      helpMessage: ''
+      helpMessage: null
     },
     template: _.template([
       '<label class="<%=Backform.controlLabelClassName%>"><%=label%></label>',
       '<div class="<%=Backform.controlsClassName%>">',
       '  <input type="<%=type%>" class="<%=Backform.controlClassName%> <%=extraClasses.join(\' \')%>" name="<%=name%>" maxlength="<%=maxlength%>" value="<%-value%>" placeholder="<%-placeholder%>" <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%> />',
-      '  <% if (helpMessage.length) { %>',
+      '  <% if (helpMessage && helpMessage.length) { %>',
       '    <span class="<%=Backform.helpMessageClassName%>"><%=helpMessage%></span>',
       '  <% } %>',
       '</div>'
@@ -453,7 +453,8 @@
       type: "radio",
       label: "",
       options: [],
-      extraClasses: []
+      extraClasses: [],
+      helpMessage: null
     },
     template: _.template([
       '<label class="<%=Backform.controlLabelClassName%>"><%=label%></label>',
@@ -463,6 +464,9 @@
       '    <label class="<%=Backform.radioLabelClassName%>">',
       '      <input type="<%=type%>" class="<%=extraClasses.join(\' \')%>" name="<%=name%>" value="<%-formatter.fromRaw(option.value)%>" <%=rawValue == option.value ? "checked=\'checked\'" : ""%> <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%> /> <%-option.label%>',
       '    </label>',
+      '  <% } %>',
+      '  <% if (helpMessage && helpMessage.length) { %>',
+      '    <span class="<%=Backform.helpMessageClassName%>"><%=helpMessage%></span>',
       '  <% } %>',
       '</div>'
     ].join("\n")),
@@ -488,7 +492,7 @@
       options: {},
       extraClasses: [],
       maxlength: 255,
-      helpMessage: ''
+      helpMessage: null
     },
     events: {
       "blur input": "onChange",
