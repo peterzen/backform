@@ -317,6 +317,7 @@ form.render(); // Backform.*Control views are created for each field and rendere
             <li><code>name</code>: Key of the model attribute to reference. If the model attribute contains nested values, these may be accessed via <i>x.y.z</i> syntax, where <i>x</i> is the model attribute and <i>y, z</i> are nested objects.</li>
             <li><code>nested</code>: <i>Deprecated</i>. Nested values are now specified in the <code>name</code> option.</li>
             <li><code>label</code>: Optional. Control label.</li>
+            <li><code>helpMessage</code>: Optional. When specified, will display a help message next to or below the control.</li>
             <li><code>placeholder</code>: Optional. Control placeholder.</li>
             <li><code>disabled</code>: Whether the control can be edited. Defaults to false.</li>
             <li><code>required</code>: Whether the control is required. Defaults to false.</li>
@@ -352,10 +353,10 @@ fields = [{
 </pre>
         </div>
       </div>
-          <h3>Nested Objects</h3>
-          <p>
-            Backform supports nested object attributes, including complex nested objects.
-          </p>
+      <h3>Nested Objects</h3>
+      <p>
+        Backform supports nested object attributes, including complex nested objects.
+      </p>
       <div class="row">
         <div class="col-md-6">
           <form id="form-nested" class="form-horizontal"></form>
