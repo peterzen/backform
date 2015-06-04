@@ -434,7 +434,8 @@
     }
   });
 
-  var MultiSelectControl = Backform.MultiSelectControl = Control.extend({
+  // Note: Value here is null or an array. Since jQuery val() returns either.
+  var MultiSelectControl = Backform.MultiSelectControl = SelectControl.extend({
     defaults: {
       label: "",
       options: [], // List of options as [{label:<label>, value:<value>}, ...]
@@ -444,10 +445,10 @@
     template: _.template([
       '<label class="<%=Backform.controlLabelClassName%>"><%=label%></label>',
       '<div class="<%=Backform.controlsClassName%>">',
-      '  <select multiple="multiple" class="<%=Backform.controlClassName%> <%=extraClasses.join(\' \')%>" name="<%=name%>" value="<%-value%>" <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%> style="height:<%=height%>">',
+      '  <select multiple="multiple" class="<%=Backform.controlClassName%> <%=extraClasses.join(\' \')%>" name="<%=name%>" value="<%-JSON.stringify(value)%>" <%=disabled ? "disabled" : ""%> <%=required ? "required" : ""%> style="height:<%=height%>">',
       '    <% for (var i=0; i < options.length; i++) { %>',
       '      <% var option = options[i]; %>',
-      '      <option value="<%-option.value%>"" <%=option.value == rawValue ? "selected=\'selected\'" : ""%> <%=option.disabled ? "disabled=\'disabled\'" : ""%>><%-option.label%></option>',
+      '      <option value="<%-option.value%>" <%=value != null && _.indexOf(value, option.value) != -1 ? "selected=\'selected\'" : ""%> <%=option.disabled ? "disabled=\'disabled\'" : ""%>><%-option.label%></option>',
       '    <% } %>',
       '  </select>',
       '</div>'
@@ -457,9 +458,13 @@
       "dblclick select": "onDoubleClick",
       "focus select": "clearInvalid"
     },
-    formatter: JSONFormatter,
-    getValueFromDOM: function() {
-      return this.$el.find("select").val();
+    formatter: {
+      fromRaw: function(rawData, model) {
+        return rawData;
+      },
+      toRaw: function(formattedData, model) {
+        return typeof formattedData == "object" ? formattedData : JSON.parse(formattedData);
+      }
     },
     onDoubleClick: function(e) {
       this.model.trigger('doubleclick', e);
