@@ -6,29 +6,10 @@
   Written by Martin Drapeau
   Licensed under the MIT @license
  */
-(function(root, factory) {
-
-  // Set up Backform appropriately for the environment. Start with AMD.
-  if (typeof define === 'function' && define.amd) {
-    define(['underscore', 'jquery', 'backbone'], function(_, $, Backbone) {
-      // Export global even in AMD case in case this script is loaded with
-      // others that may still expect a global Backform.
-      return factory(root, _, $, Backbone);
-    });
-
-  // Next for Node.js or CommonJS. jQuery may not be needed as a module.
-  } else if (typeof exports !== 'undefined') {
-    var _ = require('underscore');
-    factory(root, _, (root.jQuery || root.$ || root.Zepto || root.ender), root.Backbone);
-
-  // Finally, as a browser global.
-  } else {
-    factory(root, root._, (root.jQuery || root.Zepto || root.ender || root.$), root.Backbone);
-  }
-} (this, function(root, _, $, Backbone) {
+(function() {
 
   // Backform namespace and global options
-  Backform = root.Backform = {
+  Backform = {
     // HTML markup global class names. More can be added by individual controls
     // using _.extend. Look at RadioControl as an example.
     formClassName: "backform form-horizontal",
@@ -73,33 +54,9 @@
     }
   };
 
-  var View = Backform.View = Backbone.View.extend({
-    controls: undefined
-  });
-
-  _.extend(Backform.View.prototype, {
-    close: function() {
-      if (this.controls) {
-        _.each(this.controls, function(c) {
-          c.close();
-          delete c;
-        });
-        this.controls = undefined;
-      }
-
-      /* Give user chance to do his/her part */
-      if (this.onClose && _.isFunction(this.onClose)) {
-        this.onClose();
-      }
-      if (this.$el) this.undelegateEvents();
-      this.unbind();
-      this.remove();
-    }
-  });
-
   // Backform Form view
   // A collection of field models.
-  var Form = Backform.Form = Backform.View.extend({
+  var Form = Backform.Form = Backbone.View.extend({
     fields: undefined,
     errorModel: undefined,
     tagName: "form",
@@ -113,14 +70,6 @@
       this.model.errorModel = options.errorModel || this.model.errorModel || new Backbone.Model();
     },
     render: function() {
-      if (this.controls) {
-        _.each(this.controls, function(c) {
-          c.close();
-          delete c;
-        });
-        this.controls = undefined;
-      }
-      this.controls = [];
       this.$el.empty();
 
       var form = this,
@@ -133,19 +82,9 @@
           model: model
         });
         $form.append(control.render().$el);
-        this.controls.push(control);
       });
 
       return this;
-    },
-    onClose: function() {
-      this.fields.each(function(field) {
-          field.unbind();
-      });
-      this.fields.unbind();
-      this.fields.remove();
-      delete this.fields;
-      this.fields = undefined;
     }
   });
 
@@ -232,7 +171,7 @@
   });
 
   // Base Control class
-  var Control = Backform.Control = Backform.View.extend({
+  var Control = Backform.Control = Backbone.View.extend({
     defaults: {}, // Additional field defaults
     className: function() {
       return Backform.groupClassName;
@@ -354,13 +293,6 @@
         obj = obj[path.shift()];
       }
       return obj[path.shift()] = value;
-    },
-    onClose: function() {
-      this.stopListening(this.model, "change:" + name);
-      if (this.model.errorModel instanceof Backbone.Model) {
-        this.stopListening(this.model.errorModel, "change:" + name);
-      }
-      this.field.unbind();
     }
   });
 
@@ -613,6 +545,4 @@
     buttonStatusSuccessClassname: "text-success"
   });
 
-  return Backform;
-
-}));
+}).call(this);
