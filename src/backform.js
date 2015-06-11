@@ -315,23 +315,25 @@
       return this;
     },
     updateInvalid: function() {
+      var self = this;
       var errorModel = this.model.errorModel;
       if (!(errorModel instanceof Backbone.Model)) return this;
 
       this.clearInvalid();
 
-      var attrArr = this.field.get('name').split('.'),
+      this.$el.find(':input').each(function(ix, el) {
+        var attrArr = $(el).attr('name').split('.'),
           name = attrArr.shift(),
           path = attrArr.join('.'),
-          error = errorModel.get(name);
+          error = self.keyPathAccessor(errorModel.toJSON(), $(el).attr('name'));
 
-      if (_.isEmpty(error)) return;
-      if (_.isObject(error)) error = this.keyPathAccessor(error, path);
-      if (_.isEmpty(error)) return;
+        if (_.isEmpty(error)) return;
+        if (_.isEmpty(error)) return;
 
-      this.$el.addClass(Backform.errorClassName);
-      this.$el.find("." + Backform.controlsClassName)
-        .append('<span class="' + Backform.helpClassName + ' error">' + (_.isArray(error) ? error.join(", ") : error) + '</span>');
+        self.$el.addClass(Backform.errorClassName);
+        self.$el.find("." + Backform.controlsClassName)
+          .append('<span class="' + Backform.helpClassName + ' error">' + (_.isArray(error) ? error.join(", ") : error) + '</span>');
+      });
 
       return this;
     },
