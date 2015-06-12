@@ -260,7 +260,7 @@
 
       this.clearInvalid();
 
-      this.$el.find(':input').each(function(ix, el) {
+      this.$el.find(':input').not('button').each(function(ix, el) {
         var attrArr = $(el).attr('name').split('.'),
           name = attrArr.shift(),
           path = attrArr.join('.'),
