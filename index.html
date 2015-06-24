@@ -299,6 +299,39 @@ form.render(); // Backform.*Control views are created for each field and rendere
         <p>
           To save to the server, trap the <code>submit</code> event and call the model's <code>save</code> method.
         </p>
+        <h4 id="AMD">Backform now supports <a target="new" href="https://en.wikipedia.org/wiki/Asynchronous_module_definition">AMD</a></h4>
+        <p>
+        In the below example - the module returns a function for creating the generic form as per your requirement (this example eloberates the usage of backform.js with the require.js):
+<pre>
+define(['backbone', 'backform'], function(Backbone, Backform){
+
+    var generate_my_form = function(model, fields, el) {
+        return new Backform.Form({
+            el: $(el),
+            model: model,
+            fields: fields, // Will get converted to a collection of Backbone.Field models
+            events: {
+                "submit": function(e) {
+                    e.preventDefault();
+                    this.model.save()
+                    .done(function(result) {
+                        alert("Successful!");
+                    })
+                    .fail(function(error) {
+                        alert(error);
+                    });
+                    return false;
+                }
+            }
+        });
+    };
+
+    return generate_my_form;
+
+});
+
+</pre>
+        </p>
         </div>
       </div>
 

@@ -6,10 +6,29 @@
   Written by Martin Drapeau
   Licensed under the MIT @license
  */
-(function() {
+(function(root, factory) {
+
+  // Set up Backform appropriately for the environment. Start with AMD.
+  if (typeof define === 'function' && define.amd) {
+    define(['underscore', 'jquery', 'backbone'], function(_, $, Backbone) {
+      // Export global even in AMD case in case this script is loaded with
+      // others that may still expect a global Backform.
+      return factory(root, _, $, Backbone);
+    });
+
+  // Next for Node.js or CommonJS. jQuery may not be needed as a module.
+  } else if (typeof exports !== 'undefined') {
+    var _ = require('underscore');
+    factory(root, _, (root.jQuery || root.$ || root.Zepto || root.ender), root.Backbone);
+
+  // Finally, as a browser global.
+  } else {
+    factory(root, root._, (root.jQuery || root.Zepto || root.ender || root.$), root.Backbone);
+  }
+} (this, function(root, _, $, Backbone) {
 
   // Backform namespace and global options
-  Backform = {
+  Backform = root.Backform = {
     // HTML markup global class names. More can be added by individual controls
     // using _.extend. Look at RadioControl as an example.
     formClassName: "backform form-horizontal",
@@ -545,4 +564,6 @@
     buttonStatusSuccessClassname: "text-success"
   });
 
-}).call(this);
+  return Backform;
+
+}));
