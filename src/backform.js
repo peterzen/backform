@@ -87,13 +87,27 @@
         options.fields = new Fields(options.fields || this.fields);
       this.fields = options.fields;
       this.model.errorModel = options.errorModel || this.model.errorModel || new Backbone.Model();
+      this.controls = [];
+    },
+    cleanup: function() {
+      _.each(this.controls, function(c) {
+        c.remove();
+      });
+      this.controls.length = 0;
+    },
+    remove: function() {
+      /* First do the clean up */
+      this.cleanup();
+      Backbone.View.prototype.remove.apply(this, arguments);
     },
     render: function() {
+      this.cleanup();
       this.$el.empty();
 
       var form = this,
           $form = this.$el,
-          model = this.model;
+          model = this.model,
+          controls = this.controls;
 
       this.fields.each(function(field) {
         var control = new (field.get("control"))({
@@ -101,6 +115,7 @@
           model: model
         });
         $form.append(control.render().$el);
+        controls.push(control);
       });
 
       return this;
