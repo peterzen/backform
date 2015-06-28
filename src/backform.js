@@ -39,6 +39,7 @@
     helpClassName: "help-block",
     errorClassName: "has-error",
     helpMessageClassName: "help-block",
+    hiddenClassname: "hidden",
 
     // Bootstrap 2.3 adapter
     bootstrap2: function() {
@@ -336,10 +337,10 @@
       _.extend(data, evalF(data, this.model));
 
       /* Clean up first */
-      this.$el.removeClass('hidden');
+      this.$el.removeClass(Backform.hiddenClassname);
 
       if (!data.visible)
-        this.$el.addClass('hidden');
+        this.$el.addClass(Backform.hiddenClassname);
 
       this.$el.html(this.template(data)).addClass(field.name);
       this.updateInvalid();
