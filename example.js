@@ -130,6 +130,46 @@ $(document).ready(function() {
     }]
   }).render();
 
+  // Example with question (visible attribute)
+  new Backform.Form({
+    el: $("#form-visible"),
+    model: new Backbone.Model({toggle: false, years:0}),
+    fields: [{
+      name: "toggle",
+      label: "Are you a programmer?",
+      control: "radio",
+      options: [{label: "Yes", value: true}, {label: "No", value: false}]
+    }, {
+      name: "years",
+      label: "For how many years?",
+      deps: ["toggle"],
+      visible: function(m) {
+          return m && m.get("toggle");
+      },
+      control: Backform.InputControl
+    }]
+  }).render();
+
+  // Example with question (disable attribute)
+  new Backform.Form({
+    el: $("#form-disabled"),
+    model: new Backbone.Model({toggle: false, years:0}),
+    fields: [{
+      name: "toggle",
+      label: "Are you a programmer?",
+      control: "radio",
+      options: [{label: "Yes", value: true}, {label: "No", value: false}]
+    }, {
+      name: "years",
+      label: "For how many years?",
+      deps: ["toggle"],
+      disabled: function(m) {
+          return m && !m.get("toggle");
+      },
+      control: Backform.InputControl
+    }]
+  }).render();
+
   // Example with input of type email
   new Backform.Form({
     el: $("#form-email"),

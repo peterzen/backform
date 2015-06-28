@@ -183,18 +183,38 @@
   });
 
   // Field model and collection
-  // A field maps a model attriute to a control for rendering and capturing user input
+  //
+  //   A field maps a model attriute to a control for rendering and capturing
+  //   user input.
   var Field = Backform.Field = Backbone.Model.extend({
     defaults: {
-      name: "", // Name of the model attribute; accepts "." nested path (e.g. x.y.z)
+      // Name of the model attribute
+      // - It accepts "." nested path (e.g. x.y.z)
+      name: "",
+      // Placeholder for the input
       placeholder: "",
+      // Disable the input control
+      // (Optional - true/false/function returning boolean)
+      // (Default Value: false)
       disabled: false,
+      // Visible
+      // (Optional - true/false/function returning boolean)
+      // (Default Value: true)
+      visible: true,
+      // Value Required (validation)
+      // (Optional - true/false/function returning boolean)
+      // (Default Value: true)
       required: false,
-      value: undefined, // Optional. Default value when model is empty.
-      control: undefined, // Control name or class
-      formatter: undefined
+      // Default value for the field
+      // (Optional)
+      value: undefined,
+      // Control or class name for the control representing this field
+      control: undefined,
+      formatter: undefined,
+      // List of dependents
+      deps: []
     },
-    initialize: function() {
+    initialize: function(o1, o2) {
       var control = Backform.resolveNameToClass(this.get("control"), "Control");
       this.set({control: control}, {silent: true});
     }
@@ -206,20 +226,25 @@
 
   // Base Control class
   var Control = Backform.Control = Backbone.View.extend({
-    defaults: {}, // Additional field defaults
+    /* Additional field defaults */
+    defaults: {},
     className: function() {
       return Backform.groupClassName;
     },
     template: _.template([
       '<label class="<%=Backform.controlLabelClassName%>"><%=label%></label>',
       '<div class="<%=Backform.controlsClassName%>">',
-      '  <span class="<%=Backform.controlClassName%> uneditable-input"><%=value%></span>',
+      '  <span class="<%=Backform.controlClassName%> uneditable-input">',
+      '    <%=value%>',
+      '  </span>',
       '</div>'
     ].join("\n")),
     initialize: function(options) {
-      this.field = options.field; // Back-reference to the field
+      // Back-reference to the field
+      this.field = options.field;
 
-      var formatter = Backform.resolveNameToClass(this.field.get("formatter") || this.formatter, "Formatter");
+      var formatter = Backform.resolveNameToClass(
+        this.field.get("formatter") || this.formatter, "Formatter");
       if (!_.isFunction(formatter.fromRaw) && !_.isFunction(formatter.toRaw)) {
         formatter = new formatter();
       }
@@ -228,13 +253,32 @@
       var attrArr = this.field.get('name').split('.');
       var name = attrArr.shift();
 
+      /* Listen to the field in the model for any change */
       this.listenTo(this.model, "change:" + name, this.render);
-      if (this.model.errorModel instanceof Backbone.Model)
-        this.listenTo(this.model.errorModel, "change:" + name, this.updateInvalid);
+
+      /* Listen for the field in the error model for any change */
+      if (this.model.errorModel instanceof Backbone.Model) {
+        this.listenTo(this.model.errorModel, "change:" + name,
+            this.updateInvalid);
+      }
+
+      /* Listen to the dependent fields in the model for any change */
+      var deps = this.field.get('deps');
+      var that = this;
+      if (deps && _.isArray(deps)) {
+          _.each(deps, function(d) {
+              attrArr = d.split('.');
+              name = attrArr.shift();
+
+              that.listenTo(that.model, "change:" + name, that.render);
+          });
+      }
     },
     formatter: ControlFormatter,
     getValueFromDOM: function() {
-      return this.formatter.toRaw(this.$el.find(".uneditable-input").text(), this.model);
+      return this.formatter.toRaw(
+          this.$el.find(".uneditable-input").text(),
+          this.model);
     },
     onChange: function(e) {
       var model = this.model,
@@ -276,10 +320,30 @@
             value: this.formatter.fromRaw(rawValue, this.model),
             attributes: attributes,
             formatter: this.formatter
-          });
+          }),
+          evalF = function(data, model) {
+            var e = function(f, m) {
+                  return (_.isFunction(f) ? !!f(m) : !!f);
+                };
+            return {
+              disabled: e(data.disabled, model),
+              visible:  e(data.visible, model),
+              required: e(data.required, model)
+            }
+          };
+
+      /* Evaluate the disabled, visible, and required option */
+      _.extend(data, evalF(data, this.model));
+
+      /* Clean up first */
+      this.$el.removeClass('hidden');
+
+      if (!data.visible)
+        this.$el.addClass('hidden');
 
       this.$el.html(this.template(data)).addClass(field.name);
       this.updateInvalid();
+
       return this;
     },
     clearInvalid: function() {
@@ -582,3 +646,7 @@
   return Backform;
 
 }));
+
+/* VIM:
+ * :se shiftwidth=2 tabstop=2 expandtab smartindent textwidth=79
+ */
