@@ -322,19 +322,16 @@
             attributes: attributes,
             formatter: this.formatter
           }),
-          evalF = function(data, model) {
-            var e = function(f, m) {
-                  return (_.isFunction(f) ? !!f(m) : !!f);
-                };
-            return {
-              disabled: e(data.disabled, model),
-              visible:  e(data.visible, model),
-              required: e(data.required, model)
-            }
+          evalF = function(f, m) {
+            return (_.isFunction(f) ? !!f(m) : !!f);
           };
 
       /* Evaluate the disabled, visible, and required option */
-      _.extend(data, evalF(data, this.model));
+      _.extend(data, {
+        disabled: evalF(data.disabled, this.model),
+        visible:  evalF(data.visible, this.model),
+        required: evalF(data.required, this.model)
+      });
 
       /* Clean up first */
       this.$el.removeClass(Backform.hiddenClassname);
