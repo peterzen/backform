@@ -106,7 +106,7 @@ $(document).ready(function() {
   // Example with question
   window.f = new Backform.Form({
     el: $("#form-question"),
-    model: new Backbone.Model({toggle: false, years:0}),
+    model: new Backbone.Model({toggle: false, years: 0}),
     fields: [{
       name: "toggle",
       label: "Are you a programmer?",
@@ -133,7 +133,7 @@ $(document).ready(function() {
   // Example with question (visible attribute)
   new Backform.Form({
     el: $("#form-visible"),
-    model: new Backbone.Model({toggle: false, years:0}),
+    model: new Backbone.Model({toggle: false, years: 0}),
     fields: [{
       name: "toggle",
       label: "Are you a programmer?",
@@ -153,7 +153,7 @@ $(document).ready(function() {
   // Example with question (disable attribute)
   new Backform.Form({
     el: $("#form-disabled"),
-    model: new Backbone.Model({toggle: false, years:0}),
+    model: new Backbone.Model({toggle: false, years: 0}),
     fields: [{
       name: "toggle",
       label: "Are you a programmer?",

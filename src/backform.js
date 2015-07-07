@@ -215,7 +215,7 @@
       // List of dependents
       deps: []
     },
-    initialize: function(o1, o2) {
+    initialize: function(attributes, options) {
       var control = Backform.resolveNameToClass(this.get("control"), "Control");
       this.set({control: control}, {silent: true});
     }
@@ -244,8 +244,7 @@
       // Back-reference to the field
       this.field = options.field;
 
-      var formatter = Backform.resolveNameToClass(
-        this.field.get("formatter") || this.formatter, "Formatter");
+      var formatter = Backform.resolveNameToClass(this.field.get("formatter") || this.formatter, "Formatter");
       if (!_.isFunction(formatter.fromRaw) && !_.isFunction(formatter.toRaw)) {
         formatter = new formatter();
       }
@@ -254,16 +253,14 @@
       var attrArr = this.field.get('name').split('.');
       var name = attrArr.shift();
 
-      /* Listen to the field in the model for any change */
+      // Listen to the field in the model for any change
       this.listenTo(this.model, "change:" + name, this.render);
 
-      /* Listen for the field in the error model for any change */
-      if (this.model.errorModel instanceof Backbone.Model) {
-        this.listenTo(this.model.errorModel, "change:" + name,
-            this.updateInvalid);
-      }
+      // Listen for the field in the error model for any change
+      if (this.model.errorModel instanceof Backbone.Model)
+        this.listenTo(this.model.errorModel, "change:" + name, this.updateInvalid);
 
-      /* Listen to the dependent fields in the model for any change */
+      // Listen to the dependent fields in the model for any change
       var deps = this.field.get('deps');
       var that = this;
       if (deps && _.isArray(deps)) {
@@ -277,9 +274,7 @@
     },
     formatter: ControlFormatter,
     getValueFromDOM: function() {
-      return this.formatter.toRaw(
-          this.$el.find(".uneditable-input").text(),
-          this.model);
+      return this.formatter.toRaw(this.$el.find(".uneditable-input").text(), this.model);
     },
     onChange: function(e) {
       var model = this.model,
@@ -326,14 +321,14 @@
             return (_.isFunction(f) ? !!f(m) : !!f);
           };
 
-      /* Evaluate the disabled, visible, and required option */
+      // Evaluate the disabled, visible, and required option
       _.extend(data, {
         disabled: evalF(data.disabled, this.model),
         visible:  evalF(data.visible, this.model),
         required: evalF(data.required, this.model)
       });
 
-      /* Clean up first */
+      // Clean up first
       this.$el.removeClass(Backform.hiddenClassname);
 
       if (!data.visible)
@@ -644,7 +639,3 @@
   return Backform;
 
 }));
-
-/* VIM:
- * :se shiftwidth=2 tabstop=2 expandtab smartindent textwidth=79
- */
