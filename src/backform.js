@@ -227,7 +227,7 @@
 
   // Base Control class
   var Control = Backform.Control = Backbone.View.extend({
-    /* Additional field defaults */
+    // Additional field defaults
     defaults: {},
     className: function() {
       return Backform.groupClassName;
