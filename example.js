@@ -115,16 +115,11 @@ $(document).ready(function() {
     }, {
       name: "years",
       label: "For how many years?",
+      disabled: function(m) { return m && m.get("toggle"); },
       control: Backform.InputControl.extend({
         initialize: function() {
           Backform.InputControl.prototype.initialize.apply(this, arguments);
           this.listenTo(this.model, "change:toggle", this.render);
-        },
-        render: function() {
-          if (this.model.get("toggle"))
-            return Backform.InputControl.prototype.render.apply(this, arguments);
-          this.$el.empty();
-          return this;
         }
       })
     }]
@@ -142,31 +137,15 @@ $(document).ready(function() {
     }, {
       name: "years",
       label: "For how many years?",
-      deps: ["toggle"],
       visible: function(m) {
           return m && m.get("toggle");
       },
-      control: Backform.InputControl
-    }]
-  }).render();
-
-  // Example with question (disable attribute)
-  new Backform.Form({
-    el: $("#form-disabled"),
-    model: new Backbone.Model({toggle: false, years: 0}),
-    fields: [{
-      name: "toggle",
-      label: "Are you a programmer?",
-      control: "radio",
-      options: [{label: "Yes", value: true}, {label: "No", value: false}]
-    }, {
-      name: "years",
-      label: "For how many years?",
-      deps: ["toggle"],
-      disabled: function(m) {
-          return m && !m.get("toggle");
-      },
-      control: Backform.InputControl
+      control: Backform.InputControl.extend({
+        initialize: function() {
+          Backform.InputControl.prototype.initialize.apply(this, arguments);
+          this.listenTo(this.model, "change:toggle", this.render);
+        }
+      })
     }]
   }).render();
 

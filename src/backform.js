@@ -211,9 +211,7 @@
       value: undefined,
       // Control or class name for the control representing this field
       control: undefined,
-      formatter: undefined,
-      // List of dependents
-      deps: []
+      formatter: undefined
     },
     initialize: function(attributes, options) {
       var control = Backform.resolveNameToClass(this.get("control"), "Control");
@@ -259,18 +257,6 @@
       // Listen for the field in the error model for any change
       if (this.model.errorModel instanceof Backbone.Model)
         this.listenTo(this.model.errorModel, "change:" + name, this.updateInvalid);
-
-      // Listen to the dependent fields in the model for any change
-      var deps = this.field.get('deps');
-      var that = this;
-      if (deps && _.isArray(deps)) {
-          _.each(deps, function(d) {
-              attrArr = d.split('.');
-              name = attrArr.shift();
-
-              that.listenTo(that.model, "change:" + name, that.render);
-          });
-      }
     },
     formatter: ControlFormatter,
     getValueFromDOM: function() {
