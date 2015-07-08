@@ -106,7 +106,7 @@ $(document).ready(function() {
   // Example with question
   window.f = new Backform.Form({
     el: $("#form-question"),
-    model: new Backbone.Model({toggle: false, years:0}),
+    model: new Backbone.Model({toggle: false, years: 0}),
     fields: [{
       name: "toggle",
       label: "Are you a programmer?",
@@ -115,16 +115,35 @@ $(document).ready(function() {
     }, {
       name: "years",
       label: "For how many years?",
+      disabled: function(m) { return m && m.get("toggle"); },
       control: Backform.InputControl.extend({
         initialize: function() {
           Backform.InputControl.prototype.initialize.apply(this, arguments);
           this.listenTo(this.model, "change:toggle", this.render);
-        },
-        render: function() {
-          if (this.model.get("toggle"))
-            return Backform.InputControl.prototype.render.apply(this, arguments);
-          this.$el.empty();
-          return this;
+        }
+      })
+    }]
+  }).render();
+
+  // Example with question (visible attribute)
+  new Backform.Form({
+    el: $("#form-visible"),
+    model: new Backbone.Model({toggle: false, years: 0}),
+    fields: [{
+      name: "toggle",
+      label: "Are you a programmer?",
+      control: "radio",
+      options: [{label: "Yes", value: true}, {label: "No", value: false}]
+    }, {
+      name: "years",
+      label: "For how many years?",
+      visible: function(m) {
+          return m && m.get("toggle");
+      },
+      control: Backform.InputControl.extend({
+        initialize: function() {
+          Backform.InputControl.prototype.initialize.apply(this, arguments);
+          this.listenTo(this.model, "change:toggle", this.render);
         }
       })
     }]

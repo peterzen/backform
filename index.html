@@ -583,7 +583,7 @@ var SelectControl = Backform.SelectControl = Control.extend({
           <pre id="form-question-code" style="display:none;">
 new Backform.Form({
   el: $("#form-question"),
-  model: new Backbone.Model({toggle: true, years:0}),
+  model: new Backbone.Model({toggle: true, years: 0}),
   fields: [{
     name: "toggle",
     label: "Are you a programmer?",
@@ -591,16 +591,42 @@ new Backform.Form({
   }, {
     name: "years",
     label: "For how many years?",
+    disabled: function(model) { return !model.get("toggle"); }
     control: Backform.InputControl.extend({
       initialize: function() {
         Backform.InputControl.prototype.initialize.apply(this, arguments);
         this.listenTo(this.model, "change:toggle", this.render);
-      },
-      render: function() {
-        if (this.model.get("toggle"))
-          return Backform.InputControl.prototype.render.apply(this, arguments);
-        this.$el.empty();
-        return this;
+      }
+    })
+  }]
+}).render();
+</pre>
+          <br/>
+          <h3>Visible Attribute as a function in Field</h3>
+          <p>
+            You can conditionally show a control by providing a function, which takes model as input, and returns a boolean value. For example:
+          </p>
+          <form id="form-visible" class="form-horizontal"></form>
+          <p><button class="btn btn-primary show-code" for="#form-visible-code">&lt;/&gt; Show Code</button></p>
+          <pre id="form-visible-code" style="display:none;">
+// Example with question (visible attribute)
+new Backform.Form({
+  el: $("#form-visible"),
+  model: new Backbone.Model({toggle: false, years: 0}),
+  fields: [{
+    name: "toggle",
+    label: "Are you a programmer?",
+    control: "radio",
+    options: [{label: "Yes", value: true}, {label: "No", value: false}]
+  }, {
+    name: "years",
+    label: "For how many years?",
+    deps: ["toggle"],
+    visible: function(model) { return model.get("toggle");},
+    control: Backform.InputControl.extend({
+      initialize: function() {
+        Backform.InputControl.prototype.initialize.apply(this, arguments);
+        this.listenTo(this.model, "change:toggle", this.render);
       }
     })
   }]
