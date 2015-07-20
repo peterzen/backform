@@ -289,7 +289,6 @@
       this.stopListening(this.model, "change:" + name, this.render);
       model.set(changes);
       this.listenTo(this.model, "change:" + name, this.render);
-      $el.closest('.control-group').next('.control-group').find(':input').focus();
     },
     render: function() {
       var field = _.defaults(this.field.toJSON(), this.defaults),
