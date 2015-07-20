@@ -230,6 +230,9 @@
     className: function() {
       return Backform.groupClassName;
     },
+    events: {
+      'keydown :input': 'processTab'
+    },
     template: _.template([
       '<label class="<%=Backform.controlLabelClassName%>"><%=label%></label>',
       '<div class="<%=Backform.controlsClassName%>">',
@@ -370,6 +373,17 @@
         obj = obj[path.shift()];
       }
       return obj[path.shift()] = value;
+    },
+    processTab: function(e) {
+      if (e.which == 9) {
+        var $target = $(e.currentTarget);
+        setTimeout(function() {
+          var $nextFocus = !!$target.nextAll(':input').length ?
+                           $target.nextAll(':input').first() :
+                           $target.closest('.control-group').next('.control-group').find(':input');
+          $nextFocus.focus();
+        }, 0);
+      }
     }
   });
 
@@ -409,10 +423,10 @@
       '  <% } %>',
       '</div>'
     ].join("\n")),
-    events: {
+    events: _.extend(Control.prototype.events, {
       "change textarea": "onChange",
       "focus textarea": "clearInvalid"
-    },
+    }),
     getValueFromDOM: function() {
       return this.formatter.toRaw(this.$el.find("textarea").val(), this.model);
     }
@@ -435,10 +449,10 @@
       '  </select>',
       '</div>'
     ].join("\n")),
-    events: {
+    events: _.extend(Control.prototype.events, {
       "change select": "onChange",
       "focus select": "clearInvalid"
-    },
+    }),
     formatter: JSONFormatter,
     getValueFromDOM: function() {
       return this.formatter.toRaw(this.$el.find("select").val(), this.model);
@@ -464,11 +478,11 @@
       '  </select>',
       '</div>'
     ].join("\n")),
-    events: {
+    events: _.extend(Control.prototype.events, {
       "change select": "onChange",
       "dblclick select": "onDoubleClick",
       "focus select": "clearInvalid"
-    },
+    }),
     formatter: {
       fromRaw: function(rawData, model) {
         return rawData;
@@ -499,10 +513,10 @@
       '  <% } %>',
       '</div>'
     ].join("\n")),
-    events: {
+    events: _.extend(Control.prototype.events, {
       "change input": "onChange",
       "focus input": "clearInvalid"
-    },
+    }),
     getValueFromDOM: function() {
       return this.formatter.toRaw(this.$el.find("input").val(), this.model);
     }
@@ -578,12 +592,12 @@
       maxlength: 255,
       helpMessage: null
     },
-    events: {
+    events: _.extend(Control.prototype.events, {
       "blur input": "onChange",
       "change input": "onChange",
       "changeDate input": "onChange",
       "focus input": "clearInvalid"
-    },
+    }),
     render: function() {
       InputControl.prototype.render.apply(this, arguments);
       this.$el.find("input").datepicker(this.field.get("options"));
