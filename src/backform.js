@@ -378,10 +378,10 @@
       if (e.which == 9) {
         var $target = $(e.currentTarget);
         setTimeout(function() {
-          var $nextFocus = !!$target.nextAll(':input').length ?
-                           $target.nextAll(':input').first() :
-                           $target.closest('.control-group').next('.control-group').find(':input');
-          $nextFocus.focus();
+          var $nextFocus = !!$target.nextAll(':input:visible').length ?
+                           $target.nextAll(':input:visible').first() :
+                           $target.closest('.control-group:visible').next('.control-group:visible').find(':input:visible');
+          if ($nextFocus.length) $nextFocus.first().focus();
         }, 0);
       }
     }
@@ -423,7 +423,7 @@
       '  <% } %>',
       '</div>'
     ].join("\n")),
-    events: _.extend(Control.prototype.events, {
+    events: _.extend({}, Control.prototype.events, {
       "change textarea": "onChange",
       "focus textarea": "clearInvalid"
     }),
@@ -449,7 +449,7 @@
       '  </select>',
       '</div>'
     ].join("\n")),
-    events: _.extend(Control.prototype.events, {
+    events: _.extend({}, Control.prototype.events, {
       "change select": "onChange",
       "focus select": "clearInvalid"
     }),
@@ -478,7 +478,7 @@
       '  </select>',
       '</div>'
     ].join("\n")),
-    events: _.extend(Control.prototype.events, {
+    events: _.extend({}, Control.prototype.events, {
       "change select": "onChange",
       "dblclick select": "onDoubleClick",
       "focus select": "clearInvalid"
@@ -513,7 +513,7 @@
       '  <% } %>',
       '</div>'
     ].join("\n")),
-    events: _.extend(Control.prototype.events, {
+    events: _.extend({}, Control.prototype.events, {
       "change input": "onChange",
       "focus input": "clearInvalid"
     }),
@@ -592,7 +592,7 @@
       maxlength: 255,
       helpMessage: null
     },
-    events: _.extend(Control.prototype.events, {
+    events: _.extend({}, Control.prototype.events, {
       "blur input": "onChange",
       "change input": "onChange",
       "changeDate input": "onChange",
