@@ -323,6 +323,12 @@
       if (!data.visible)
         this.$el.addClass(Backform.hiddenClassname);
 
+      // Adding class for required input to easily put a * in form-group with css
+      this.$el.removeClass(Backform.requiredClassname);
+
+      if (data.required)
+        this.$el.addClass(Backform.requiredClassname);
+
       this.$el.html(this.template(data)).addClass(field.name);
       this.updateInvalid();
 
