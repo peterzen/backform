@@ -1,34 +1,58 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Backform</title>
+    <title>Backform.js - A Model-View approach to HTML forms with Backbone.js</title>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
-    
+
     <script src="3rd/jquery.min.js" type="text/javascript"></script>
     <script src="3rd/bootstrap.min.js" type="text/javascript"></script>
     <link href="3rd/bootstrap.min.css" rel="stylesheet" type="text/css" charset="utf-8">
 
     <script src="3rd/bootstrap-datepicker.js" type="text/javascript"></script>
     <link href="3rd/bootstrap-datepicker.css" rel="stylesheet" type="text/css" charset="utf-8">
-    
+
     <script src="3rd/underscore.js" type="text/javascript"></script>
     <script src="3rd/backbone.js" type="text/javascript"></script>
-    
+
     <script src="src/backform.js" type="text/javascript"></script>
 
     <script src="example.js" type="text/javascript"></script>
-    
+
     <style>
       header.navbar-inverse {border-radius: 0;}
       footer.navbar-default {border-radius: 0; margin-bottom: 0;}
       .shiftable-collection-item {padding: 10px; text-align: center; height: 160px; border: 1px solid #999; margin-right: 10px;}
       .shiftable-collection-item:hover, .shiftable-collection-item.selected {background-color: #ddd;}
       .shiftable-collection img {max-width: 100%; max-height: 100px;}
+      .bs-sidebar .nav > .active > ul {display: block; margin-bottom: 4px;}
+      .bs-sidebar .nav > li > a {padding: 2px 4px;}
+      .bs-sidebar .nav > li.active {background-color: #428bca; border-radius: 0;}
+      .bs-sidebar .nav > li.active > a {color: white;}
+      .bs-sidebar .nav > li.active > a:hover {background-color: #428bca;}
+      .bs-sidebar .nav > li.active, .bs-sidebar .nav > li.active > a:hover {background-color: #428bca;}
     </style>
+
+    <script type="text/javascript">
+      $(document).ready(function() {
+        $("button.show-code").click(function(e) {
+          e.preventDefault();
+          var $btn = $(this),
+              $pre = $($btn.attr("for"));
+          if ($pre.css("display") == "none") {
+            $pre.slideDown();
+            $btn.html("&lt;/&gt; Hide code");
+          } else {
+            $pre.slideUp();
+            $btn.html("&lt;/&gt; Show code");
+          }
+        });
+      });
+    </script>
   </head>
-  <body>
+
+  <body data-spy="scroll" data-target="#sidebar" data-offset="100">
     <header class="navbar navbar-inverse">
       <div class="navbar-header">
         <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse">
@@ -37,26 +61,37 @@
           <span class="icon-bar"></span>
           <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="#">Backforms</a>
+        <a class="navbar-brand" href="index.html">Backform.js</a>
       </div>
       <div class="collapse navbar-collapse" id="navbar-collapse">
         <ul class="nav navbar-nav">
           <li><a href="#Introduction">Introduction</a></li>
           <li><a href="#Documentation">Documentation</a></li>
-          <li><a href="#Bootstrap">Bootstrap Markup</a></li>
+          <li><a href="#Markup">HTML Markup</a></li>
+          <li><a href="bootstrap2.html">Bootstrap 2.3</a></li>
+          <li><a href="https://github.com/AmiliaApp/backform/blob/gh-pages/src/backform.js" target="_blank">&lt;/&gt; View source</a></li>
         </ul>
       </div>
     </header>
+
     <div class="container">
+    <div class="row">
+    <div class="col-md-10">
+
       <div class="row">
         <div class="col-md-12">
           <h1 id="Introduction">Introduction</h1>
           <p>
-            Backform takes a Backbone model and transforms it into an HTML form with Bootstrap markup.
-            Any changes to the form are relfected back to the model and vice versa.
-            It comes with built-in controls for input, select, radio buttons and checkbox.
+            Backform.js allows you to generate, render and capture user input with an HTML form in Javascript.
+            The data is retrieved and stored in a Backbone model. The form is rendered with a Backbone view.
+            Any changes to the form are reflected back to the model and vice versa.
+            To POST (or PUT) the form to the server, simply call the Backbone model's <code>save</code> method.
+          </p>
+          <p>
+            Backform comes with built-in controls for input, select, radio buttons, checkbox, etc.
             Backform controls are Backbone views and extensible.
             Backform even supports nested objects.
+            Backform is built with Bootstrap 3 markup. Supports Bootstrap 2.3. Adaptable to any markup framework.
           </p>
           <h2>Example</h2>
           <p>A Backform to edit a person. The address is a nested object. Change to see the Backbone model updated (right).</p>
@@ -73,9 +108,125 @@
 
       <div class="row">
         <div class="col-md-12">
+          <p><button class="btn btn-primary show-code" for="#form-code">&lt;/&gt; Show Code</button></p>
+          <pre id="form-code" style="display:none;">
+var person = new Backbone.Model({
+  id: 101,
+  salutation: "Mr",
+  firstName: "Andre",
+  lastName: "Jones",
+  adult: true,
+  address: {
+    address1: "1751 rue Richardson",
+    address2: "Suite 3.105",
+    city: "Montréal",
+    postalCode: "H3K 1G6",
+    province: "QC"
+  },
+  dateOfBirth: "1990-10-10",
+  lifeGoal: "To become the best basketball player there is. I want to dunk!"
+});
+
+new Backform.Form({
+  el: "#form",
+  model: person,
+  fields: [
+    {name: "id", label: "Id", control: "uneditable-input"},
+    {name: "firstName", label: "First Name", control: "input"},
+    {name: "lastName", label: "Last Name", control: "input"},
+    {name: "adult", label: "Adult", control: "checkbox"},
+    {
+      name: "salutation",
+      label: "Salutation",
+      control: "radio",
+      options: [
+        {label: "Mr.", value: "Mr"},
+        {label: "Mrs.", value: "Mrs"},
+        {label: "Mme.", value: "Mme"}
+      ]
+    },
+    {control: "spacer"},
+    {name: "address.address1", label: "Address1", control: "input"},
+    {name: "address.address2", label: "Address2", control: "input"},
+    {name: "address.city", label: "City", control: "input"},
+    {name: "address.postalCode", label: "Postal Code", control: "input"},
+    {
+      name: "address.province",
+      label: "Province",
+      control: "select",
+      options: [
+        {label: "Alberta", value: "AB"},
+        {label: "British Columbia", value: "BC"},
+        {label: "Manitoba", value: "MB"},
+        {label: "New Brunswick", value: "NB"},
+        {label: "Newfoundland and Labrador", value: "NL"},
+        {label: "Northwest Territories", value: "NT"},
+        {label: "Nova Scotia", value: "NS"},
+        {label: "Nunavut", value: "NU"},
+        {label: "Ontario", value: "ON"},
+        {label: "Prince Edward Island", value: "PE"},
+        {label: "Québec", value: "QC"},
+        {label: "Saskatchewan", value: "SK"},
+        {label: "Yukon", value: "YT"}
+      ]
+    },
+    {name: "dateOfBirth", label: "Date of birth", control: "datepicker", options: {format: "yyyy-mm-dd"}},
+    {name: "lifeGoal", label: "Life goal", control: "textarea", extraClasses: ["fancy"], helpMessage: "Be creative!"},
+    {
+      name: "jsonValue",
+      label: "JSON value",
+      control: "select",
+      options: [
+        {label: "null", value: null},
+        {label: "true", value: true},
+        {label: "false", value: false},
+        {label: "0", value: 0},
+        {label: "1", value: 1},
+        {label: "99", value: 99},
+        {label: "a string", value: "a string"}
+      ]
+    },
+    {control: "button", label: "Save to server"}
+    ],
+  events: {
+    "submit": function(e) {
+      e.preventDefault();
+      this.model.save().done(function(result) {
+        alert("Form saved to server!");
+      });
+      return false;
+    }
+  }
+}).render();
+
+person.on("change", function() {
+  $("#object").text(JSON.stringify(person.toJSON(), null, 2));
+}).trigger("change");
+</pre>
+          <h2>Installation</h2>
+          <p>Backform is one single file which creates a new global <code>Backform</code>. Include it after you load Underscore and Backbone.</p>
+          <pre>
+&lt;script src="underscore.js" type="text/javascript"&gt;&lt;/script&gt;
+&lt;script src="backbone.js" type="text/javascript"&gt;&lt;/script&gt;
+&lt;script src="backform.js" type="text/javascript"&gt;&lt;/script&gt;
+</pre>
+          <p>Or, if you use <a href="http://bower.io/" target="_blank">Bower</a>:</p>
+          <pre>
+$ bower install backform
+</pre>
+          <p>Or, if you use <a href="https://www.npmjs.org/" target="_blank">npm</a>:</p>
+          <pre>
+$ npm install backform
+</pre>
+        </div>
+      </div>
+      <br/>
+
+      <div class="row">
+        <div class="col-md-12">
           <h1 id="Documentation">Documentation</h1>
           <p>
-            Backform consists of Backbone views. A form is a view which contains control groups which are also views. A control group is a view which renders a model attribute and captures user input. it also ensures the model and DOM are always in sync. The philosophy is very similar to <a href="http://backgridjs.com/" target="_blank">Backgrid</a>.
+            Backform consists of Backbone views. A form is a view which contains control groups which are also views. A control group is a view which renders a model attribute and captures user input. It also ensures the model and DOM are always in sync. The philosophy is very similar to <a href="http://backgridjs.com/" target="_blank">Backgrid</a>.
           </p>
           <p>
             These are the important Backform classes:
@@ -83,13 +234,21 @@
           <ul>
             <li><code>Backform.Form</code>: A Backbone view which represents the FORM element.</li>
             <li><code>Backform.Field, Backform.Fields</code>: A Form contains a collection of Field models, which define the mapping of a model attribute to a form control.</li>
-            <li><code>Backform.Control</code>: The ancestor class of Backform controls. A Backbone view which represents a control group (<code>.form-group</code> element in Bootstrap). It implements the <code>render</code> and <code>onChange</code> methods required to keep the DOM and model in sync.</li>
+            <li><code>Backform.Control</code>: The base class of Backform controls. A Backbone view which represents a control group (<code>.form-group</code> element in Bootstrap). It implements the <code>render</code> and <code>onChange</code> methods required to keep the DOM and model in sync.</li>
+            <li><code>Backform.ControlFormatter</code>: Converts to/from raw JSON value to/from humanized form. Exactly like <a href="http://backgridjs.com/ref/formatter.html" target="_blank">Backgrid's CellFormatter</a>. </li>
             <li><code>Backform.InputControl, Backform.SelectControl, ...</code>: The controls themselves inheriting from Backform.Control. They can be extended or you can create your own from scratch.</li>
           </ul>
-          <h2>Basic Usage</h2>
+          <h2 id="Usage">Basic Usage</h2>
+          <p>
+            Backform is a signle Javascript file that you load after Backbone is loaded.
+          </p>
+          <pre>
+&lt;script type="text/javascript" src="backform.js"&gt;&lt;/script&gt;
+</pre>
           <p>
             To create a form, you instantiate a Backform.Form view. You pass it a definition of fields.
             A field maps a model attribute to a form control. For example:
+          </p>
 <pre>
 var person = new Backbone.Model({
   id: 101,
@@ -109,17 +268,70 @@ var fields = [{
   }, {
     name: "lastName",
     label: "Last name",
-    control: "input"
-}];
+    control: "input",
+    extraClasses: ["fancy"],
+    helpMessage: "Be creative!"
+  }, {
+    control: "button",
+    label: "Save to server"
+  }];
 
 var form = new Backform.Form({
   el: $("#form"),
   model: person,
-  fields: fields // Will get converted to a collection of Backbone.Field models
+  fields: fields, // Will get converted to a collection of Backbone.Field models
+  events: {
+    "submit": function(e) {
+      e.preventDefault();
+      this.model.save()
+        .done(function(result) {
+          alert("Successful!");
+        })
+        .fail(function(error) {
+          alert(error);
+        });
+      return false;
+    }
+  }
 });
 form.render(); // Backform.*Control views are created for each field and rendered on screen
 </pre>
-          </p>
+        <p>
+          To save to the server, trap the <code>submit</code> event and call the model's <code>save</code> method.
+        </p>
+        <h4 id="AMD">Backform now supports <a target="new" href="https://en.wikipedia.org/wiki/Asynchronous_module_definition">AMD</a></h4>
+        <p>
+        In the below example - the module returns a function for creating the generic form as per your requirement (this example eloberates the usage of backform.js with the require.js):
+<pre>
+define(['backbone', 'backform'], function(Backbone, Backform){
+
+    var generate_my_form = function(model, fields, el) {
+        return new Backform.Form({
+            el: $(el),
+            model: model,
+            fields: fields, // Will get converted to a collection of Backbone.Field models
+            events: {
+                "submit": function(e) {
+                    e.preventDefault();
+                    this.model.save()
+                    .done(function(result) {
+                        alert("Successful!");
+                    })
+                    .fail(function(error) {
+                        alert(error);
+                    });
+                    return false;
+                }
+            }
+        });
+    };
+
+    return generate_my_form;
+
+});
+
+</pre>
+        </p>
         </div>
       </div>
 
@@ -132,21 +344,22 @@ form.render(); // Backform.*Control views are created for each field and rendere
             Either way, they get converted to a collection of models.
           </p>
           <p>
-            A Backform.Field can contain these options (translated to model attributes).
+            A Backform.Field can contain these options which get translated to model attributes.
           </p>
           <ul>
-            <li><code>name</code>: Key of the model attribute to reference.</li>
-            <li><code>nested</code>: Optional. If the model attribute is an object, nested attribute key to display (and update).</li>
+            <li><code>name</code>: Key of the model attribute to reference. If the model attribute contains nested values, these may be accessed via <i>x.y.z</i> syntax, where <i>x</i> is the model attribute and <i>y, z</i> are nested objects.</li>
+            <li><code>nested</code>: <i>Deprecated</i>. Nested values are now specified in the <code>name</code> option.</li>
             <li><code>label</code>: Optional. Control label.</li>
+            <li><code>helpMessage</code>: Optional. When specified, will display a help message next to or below the control.</li>
             <li><code>placeholder</code>: Optional. Control placeholder.</li>
             <li><code>disabled</code>: Whether the control can be edited. Defaults to false.</li>
+            <li><code>required</code>: Whether the control is required. Defaults to false.</li>
             <li><code>value</code>: Optional. Default value when model is empty.</li>
             <li><code>control</code>: Control name or class</li>
           </ul>
-          </p>
           <p>
-            When you define a field, you can pass the name of the control,
-            or the control class. You can even inline-extend a control.
+            When you define a field, you can pass the name of the control, or the control class.
+            You can even inline-extend a control.
             <pre>
 control: "input"
 ...
@@ -160,10 +373,11 @@ control: Backform.InputControl.extend({
 </pre>
           </p>
           <p>
-            Controls can support extra options. These can directly be passed in the field definition.
+            When the control is created, it will be passed the field model as back-reference. As such, controls can support extra options. These can directly be passed in the field definition.
             For example, the input control has an extra option <code>type</code> which defaults to <code>text</code>.
             You can override this in this way:
-            <pre>
+          </p>
+<pre>
 fields = [{
   control: "input",
   type: "email"
@@ -172,7 +386,70 @@ fields = [{
 </pre>
         </div>
       </div>
+      <h3>Nested Objects</h3>
+      <p>
+        Backform supports nested object attributes, including complex nested objects.
+      </p>
+      <div class="row">
+        <div class="col-md-6">
+          <form id="form-nested" class="form-horizontal"></form>
+        </div>
+        <div class="col-md-6">
+          <pre id="nested-object"></pre>
+        </div>
+      </div>
 
+      <div class="row">
+        <div class="col-md-12">
+          <p><button class="btn btn-primary show-code" for="#form-code-nested">&lt;/&gt; Show Code</button></p>
+          <pre id="form-code-nested" style="display:none;">
+var personAndFamily = new Backbone.Model({
+    "firstName": "Andre",
+    "lastName": "Jones",
+    "relatives": {
+      "mother": {
+        "firstName": "Elizabeth",
+        "lastName": "Jones"
+      },
+      "father": {
+        "firstName": "Douglas",
+        "lastName": "Jones"
+      }
+    }
+  });
+
+new Backform.Form({
+  el: "#form-nested",
+  model: personAndFamily,
+  fields: [
+    {name: "firstName", label: "First Name", control: "input"},
+    {name: "lastName", label: "Last Name", control: "input"},
+    {
+      name: "relatives.mother.firstName",
+      label: "Mother's First Name",
+      control: "input",
+    }, {
+      name: "relatives.mother.lastName",
+      label: "Mother's Last Name",
+      control: "input",
+    }, {
+      name: "relatives.father.firstName",
+      label: "Father's First Name",
+      control: "input",
+    }, {
+      name: "relatives.father.lastName",
+      label: "Father's Last Name",
+      control: "input",
+    }
+  ]
+}).render();
+
+personAndFamily.on("change", function() {
+  $("#nested-object").text(JSON.stringify(personAndFamily.toJSON(), null, 2));
+}).trigger("change");
+</pre>
+        </div>
+      </div>
       <div class="row">
         <div class="col-md-12">
           <h2 id="Controls">Controls</h2>
@@ -189,31 +466,173 @@ fields = [{
             <li><code>Backform.BooleanControl</code> (<code>boolean</code>): Alias to Backform.CheckboxControl.</li>
             <li><code>Backform.SelectControl</code> (<code>select</code>): Select drop-down. Pass <code>options</code> to specify a list of options as <code>[{label:&lt;label&gt;, value:&lt;value&gt;}, ...]</code>.</li>
             <li><code>Backform.RadioControl</code> (<code>radio</code>): Radio button inputs. Pass <code>options</code> to specify a list of options as <code>[{label:&lt;label&gt;, value:&lt;value&gt;}, ...]</code>.</li>
-            <li><code>Backform.DatepickerControl</code> (<code>datepicker</code>): An input fill with the <a href="http://www.eyecon.ro/bootstrap-datepicker" target="_blank">Boostrap Datepicker plugin</a>.</li>
-            <li><code>Backform.SubmitButtonControl</code> (<code>submit-button</code>): A submit button. Pass <code>type</code> to change button type.</li>
+            <li><code>Backform.DatepickerControl</code> (<code>datepicker</code>): An input with the <a href="http://www.eyecon.ro/bootstrap-datepicker" target="_blank">Boostrap Datepicker plugin</a>. Pass <code>options</code> to specify the datepicker options. Don't forget to include the datepicker JS file.</li>
+            <li><code>Backform.ButtonControl</code> (<code>button</code>): A button of type submit by default. Pass <code>type</code> to change button type. Can display a status message. Pass option <code>message</code> to display a message to the right of the button. Pass option <code>status</code> with value <code>success</code> or <code>error</code> to color-code the message.</li>
+            <li><code>Backform.UneditaleInputControl</code> (<code>uneditale-input</code>): Displays an input-like span.</li>
+            <li><code>Backform.HelpControl</code> (<code>help</code>): A help block where <code>label</code> contains the text to place.</li>
+            <li><code>Backform.SpacerControl</code> (<code>spacer</code>): An empty row.</li>
           </ul>
+
+          <h3>Anatomy of a Control</h3>
           <p>
-            In the case you want to extend a control, or create your own from scratch, this is the anatomy of the Backform.InputControl view:
-            <pre>
+            A control is a Backbone view which leverages methods <code>initialize</code> and <code>render</code>, and properties <code>className</code> and <code>events</code>. In addition, Backform.Control adds these:
+            <ul>
+              <li><code>defaults</code>: Extra options that can be passed in the field definition, with their default values.</li>
+              <li><code>template</code>: An <a href="http://underscorejs.org/#template" target="_blank">underscore template</a> to render the control.</li>
+              <li><code>getValueFromDOM</code>: A method to retrieve the value from the DOM and translate it to a model value.</li>
+              <li><code>formatter</code>: A control formatter to translate model values to/from human values. By default uses the <code>Backform.ControlFormatter</code> (described further below).</li>
+            </ul>
+            As an example this is the anatomy of the <code>Backform.InputControl</code> view:
+          </p>
+          <pre>
 var InputControl = Backform.InputControl = Control.extend({
   defaults: { // Extra options that can be passed in the field defition.
     type: "text"
   },
-  template: ..., // An underscore template containing the markup (see the code)
+  template: ..., // An underscore template containing the markup
   events: {
     "change input": "onChange", // Transfer value from the DOM to the model
     "focus input": "clearInvalid" // Clear any errors when the user clicks inside the input (see invalid markup section)
   },
   getValueFromDOM: function() { // How the value is fetched from the DOM
-    return this.$el.find("input").val();
+    return this.formatter.toRaw(this.$el.find("input").val(), this.model);
   }
 });
 </pre>
-          </p>
+
+          <h3>Rendering</h3>
           <p>
-            Since you have a reference to the field, you can pick up any control options defined in the control class <code>defaults</code>.
-            You can therefore, for example, define an input of type email this way:
+            The Control <code>render</code> method will use the <a href="http://underscorejs.org/#template" target="_blank">underscore <code>template</code></a> to render itself.
+            The template is passed the back-reference serialized field model, along with <code>attributes</code> (serialized form model), <code>rawValue</code> (the form model's attribute for this control as defined by <code>name</code> in the field), and <code>value</code> (the humanized value converted using <code>formatter</code>'s <code>toRaw</code> function).
+            For example, this is the <code>InputControl</code>'s template:
           </p>
+          <pre>
+&lt;label class="&lt;%=Backform.controlLabelClassName%&gt;"&gt;&lt;%-label%&gt;&lt;/label&gt;
+&lt;div class="&lt;%=Backform.controlsClassName%&gt;"&gt;
+  &lt;input type="&lt;%=type%&gt;" class="&lt;%=Backform.controlClassName%&gt;" name="&lt;%=name%&gt;" value="&lt;%-value%&gt;" placeholder="&lt;%-placeholder%&gt;" &lt;%=disabled ? "disabled" : ""%&gt; &lt;%=required ? "required" : ""%&gt; /&gt;
+&lt;/div&gt;
+</pre>
+          <p>See the <a href="#Markup">HTML Markup</a> section for more information on HTML elements.</p>
+
+          <h3>Keeping the model in sync with the DOM</h3>
+          <p>
+            Controls keep the form model in sync with the DOM by listening to <code>change</code> events, and then calling method <code>getValueFromDOM</code>.
+            For an input, this consists in using jQuery's <code>val</code> method to retrieve the value.
+            Method <code>getValueFromDOM</code> must then call the <code>formatter</code>'s <code>toRaw</code> function. For example:
+          </p>
+          <pre>
+getValueFromDOM: function() {
+  return this.formatter.toRaw(this.$el.find("input").val(), this.model);
+},
+</pre>
+          <p>
+            You can override this method to retrieve the value from the DOM differently.
+            For example look at <code>RadioControl</code>:
+          </p>
+          <pre>
+getValueFromDOM: function() {
+  return this.formatter.toRaw(this.$el.find("input:checked").val(), this.model);
+},
+</pre>
+
+          <h3>Control Formatters</h3>
+          <p>
+            Control formatters are used to convert raw model values to a human format so it can be rendered in the DOM.
+            They also convert back from human to raw JSON format.
+            A class formatter must have two functions: <code>fromRaw</code> (model value to human value) and <code>toRaw</code> (from human value to model value).
+            The default class <code>Backform.ControlFormatter</code> does no conversion:
+          </p>
+          <pre>
+fromRaw: function (rawData, model) {
+  return rawData;
+},
+toRaw: function (formattedData, model) {
+  return formattedData;
+}
+</pre>
+          <p>
+            You create your own formatters to store values differently in the DOM.
+            For example the <code>SelectControl</code> stores stringified JSON in the <code>SELECT</code> element's <code>value</code> attribute.
+            This allows you to use numerical values and even <code>null</code>, <code>true</code> or <code>false</code> (otherwise they would be converted to strings when storing in the DOM).
+            It uses the <code>Backform.JSONFormatter</code>:
+          </p>
+          <pre>
+var JSONFormatter = Backform.JSONFormatter = function() {};
+_.extend(JSONFormatter.prototype, {
+  fromRaw: function(rawData, model) {
+    return JSON.stringify(rawData);
+  },
+  toRaw: function(formattedData, model) {
+    return JSON.parse(formattedData);
+  }
+});
+...
+var SelectControl = Backform.SelectControl = Control.extend({
+  ...
+  formatter: JSONFormatter,
+  ...
+</pre>
+          <p class="alert alert-info">Formatters work exactly like those in Backgrid. Consult <a href="http://backgridjs.com/ref/formatter.html" target="_blank">Backgrid's Formatters documentation</a> for backgorund and philosophy.</p>
+
+          <h3>Extending Controls</h3>
+          <p>
+            You can conditionally show a control by extending it. Since it is a Backbone view, you can extend the render function. For example:
+          </p>
+          <form id="form-question" class="form-horizontal"></form>
+          <p><button class="btn btn-primary show-code" for="#form-question-code">&lt;/&gt; Show Code</button></p>
+          <pre id="form-question-code" style="display:none;">
+new Backform.Form({
+  el: $("#form-question"),
+  model: new Backbone.Model({toggle: true, years: 0}),
+  fields: [{
+    name: "toggle",
+    label: "Are you a programmer?",
+    control: "checkbox"
+  }, {
+    name: "years",
+    label: "For how many years?",
+    disabled: function(model) { return !model.get("toggle"); }
+    control: Backform.InputControl.extend({
+      initialize: function() {
+        Backform.InputControl.prototype.initialize.apply(this, arguments);
+        this.listenTo(this.model, "change:toggle", this.render);
+      }
+    })
+  }]
+}).render();
+</pre>
+          <br/>
+          <h3>Visible Attribute as a function in Field</h3>
+          <p>
+            You can conditionally show a control by providing a function, which takes model as input, and returns a boolean value. For example:
+          </p>
+          <form id="form-visible" class="form-horizontal"></form>
+          <p><button class="btn btn-primary show-code" for="#form-visible-code">&lt;/&gt; Show Code</button></p>
+          <pre id="form-visible-code" style="display:none;">
+// Example with question (visible attribute)
+new Backform.Form({
+  el: $("#form-visible"),
+  model: new Backbone.Model({toggle: false, years: 0}),
+  fields: [{
+    name: "toggle",
+    label: "Are you a programmer?",
+    control: "radio",
+    options: [{label: "Yes", value: true}, {label: "No", value: false}]
+  }, {
+    name: "years",
+    label: "For how many years?",
+    deps: ["toggle"],
+    visible: function(model) { return model.get("toggle");},
+    control: Backform.InputControl.extend({
+      initialize: function() {
+        Backform.InputControl.prototype.initialize.apply(this, arguments);
+        this.listenTo(this.model, "change:toggle", this.render);
+      }
+    })
+  }]
+}).render();
+</pre>
+          <br/>
         </div>
       </div>
 
@@ -222,84 +641,185 @@ var InputControl = Backform.InputControl = Control.extend({
           <h2 id="Validation">Validation</h2>
           <p>
             Backform can render error validation markup à la Bootstrap.
-            It does not leverage the Backbone model <code>validation</code> and <code>isValid</code> methods, nor does it perform client-side validation, field by field.
-            Instead, it allows you to keep another model with errors that get rendered on the form.
-            This is useful for back-end validation whereby the result of a 4xx HTTP error would contain a mapping of attribute-errors.
+            It does so by attaching a companion error model on the form data model.
+            When the Backform.Form view is constructed, it adds a new property <code>errorModel</code> onto the model (alternatively you can pass your own <code>errorModel</code> when you create the Backform.Form view).
+            The error model is simply a Backbone model which contains the same attribute names as the original model, but with error messages as values.
+            The form will automatically listen for changes on the <code>errorModel</code> to display the errors.
+            You need only set the invalid attribute with an appropriate error message and for it to be displayed.
           </p>
           <p>
-            Backform.Form accepts an optional <code>errorModel</code>. It should contain the same attributes as the original <code>model</code> but with error messages as values. The form will automatically listen for changes on the <code>errorModel</code> to display the errors. You need only set the invalid attribute with an appropriate error message and for it to be displayed.
+            You can then use Backbone model's validate method to set the errors. For example:
           </p>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-md-12">
-          <h3>Example</h3>
-          <form id="form2" class="form-horizontal"></form>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-md-12">
-          <h3>Code</h3>
-<pre>
-var model = new Backbone.Model({a: 101}),
-    errorModel = new Backbone.Model();
+          <pre>
+  validate: function(attributes, options) {
+    this.errorModel.clear();
 
-var form2 = new Backbone.FormView({
-  el: "#form2",
-  model: model,
-  errorModel: errorModel,
-  schema: [{name: "a", label: "Choose a number between 10 and 20. Press Enter to submit the form.", control: "input"}]
+    var number = parseFloat(this.get("a"), 10);
+    if (isNaN(number))
+      this.errorModel.set({a: "Not a number!"});
+    else if (number &lt;= 10 || number &gt;= 20)
+      this.errorModel.set({a: "Must be between 10 and 20"});
+
+    if (!_.isEmpty(_.compact(this.errorModel.toJSON())))
+      return "Validation errors. Please fix.";
+  }
+</pre>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-12">
+          <h3>Client-Side Validation Example</h3>
+          <p>In this example, validation is performed client-side when the form is submitted.</p>
+          <form id="form-validation" class="form-horizontal"></form>
+          <p><button class="btn btn-primary show-code" for="#form-validation-code">&lt;/&gt; Show Code</button></p>
+          <pre id="form-validation-code" style="display:none;">
+var MyModel = Backbone.Model.extend({
+  defaults: {
+    a: null
+  },
+  validate: function(attributes, options) {
+    this.errorModel.clear();
+
+    var number = parseFloat(this.get("a"), 10);
+    if (isNaN(number))
+      this.errorModel.set({a: "Not a number!"});
+    else if (number &lt;= 10 || number &gt;= 20)
+      this.errorModel.set({a: "Must be between 10 and 20"});
+
+    if (!_.isEmpty(_.compact(this.errorModel.toJSON())))
+      return "Validation errors. Please fix.";
+  }
 });
-form2.render()
 
-$("#form2").on("submit", function(e) {
+var form = new Backform.Form({
+  el: "#form-validation",
+  model: new MyModel(),
+  fields: [{
+    name: "a",
+    label: "Type in a number between 10 and 20. Submit the form to validate.",
+    control: "input",
+    type: "number"
+  }, {
+    id: "submit",
+    control: "button"
+  }]
+}).render();
+
+form.$el.on("submit", function(e) {
   e.preventDefault();
+  var submit = form.fields.get("submit");
 
-  errorModel.clear();
+  if (form.model.isValid())
+    submit.set({status:"success", message: "Success!"});
+  else
+    submit.set({status:"error", message: form.model.validationError});
 
-  var number = parseFloat(model.get("a"), 10);
-  if (isNaN(number))
-    errorModel.set({a: "Not a number!"});
-  else if (number &lt;= 10 || number &gt;= 20)
-    errorModel.set({a: "Must be between 10 and 20"})
+  return false;
+});
+</pre>
+          <br/>
+          <h3>Browser Validation</h3>
+          <p>
+            Noways, with <a href="https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Forms/Data_form_validation" target="_blank">browser-supplied form validation</a> modern browsers can validate inputs for you. You can leverage that with Backform.
+          </p>
+          <p>
+            For example, you can define inputs of type <code>email</code> and <code>number</code>. The browser will perform validation for you (if validation is supported by the browser).
+          </p>
+          <form id="form-email" class="form-horizontal"></form>
+          <p><button class="btn btn-primary show-code" for="#form-email-code">&lt;/&gt; Show Code</button></p>
+          <pre id="form-email-code" style="display:none;">
+new Backform.Form({
+  el: $("#form-email"),
+  model: new Backbone.Model({email: "jonsnow@castlebla.ck", age:20}),
+  fields: [{
+    name: "email",
+    label: "Email",
+    control: "input",
+    type: "email",
+    required: true
+  }, {
+    name: "age",
+    label: "Age",
+    control: "input",
+    type: "number",
+    required: true
+  }, {
+    control: "button"
+  }]
+}).render();
 
+$("#form-email").on("submit", function(e) {
+  alert("Browser validation passed");
   return false;
 });
 </pre>
         </div>
       </div>
+      <br/>
 
       <div class="row">
         <div class="col-md-12">
-          <h1 id="Bootstrap">Bootstrap Markup</h1>
-          <p>
-            Backform comes setup for Bootstrap 3 horizontal forms with a 4-column width for labels, and 8-column width for controls.
+          <h1 id="Markup">HTML Markup</h1>
+          <p>Backform comes setup for Bootstrap 3 horizontal forms with a 4-column width for labels, and 8-column width for controls.</p>
             <pre>
 &lt;form class="form-horizontal"&gt; &lt;!-- form --&gt;
   &lt;div class="form-group"&gt; &lt;!-- form group --&gt;
     &lt;label class="col-sm-4 control-label"&gt;First Name&lt;/label&gt; &lt;!-- label --&gt;
     &lt;div class="col-sm-8"&gt; &lt;!-- controls --&gt;
-      &lt;input type="text" class="form-control" name="firstName" data-nested="" value="Andre" placeholder="" /&gt; &lt;!-- control --&gt;
+      &lt;input type="text" class="form-control" name="firstName" value="Andre" placeholder="" /&gt; &lt;!-- control --&gt;
     &lt;/div&gt;
   &lt;/div&gt;
   ...
 &lt;/div&gt;
 </pre>
-            You can however change the layout via <code>Backform.*ClassName</code> options.
+          <p>
+            You can however change the layout via global class names in <code>Backform.*ClassName</code> options.
             For example, this switches to a 6-6 column layout:
+          </p>
             <pre>
 _.extend(Backform, {
   controlLabelClassName: "control-label col-sm-6",
   controlsClassName: "col-sm-6",
 });
 </pre>
-            In addition, you can switch to Bootstrap 2.3 by calling the <code>Backform.bootstrap2</code> function.
-            It will change the class names automatically for you and call <code>bootstrap2</code> functions on any control under the Backfrom namespace, as some have to change their HTML markup.
+          <p>
+            Backform can be adapted to other markup frameworks by changing the HTML templates of individual controls, and the global class names. See how Backform adapts to Bootstrap 2 as an example by looking at <a href="https://github.com/AmiliaApp/backform/blob/gh-pages/src/backform.js" target="_blank">backform.js</a>.
           </p>
-          <blockquote>TO DO: Complete the Bootstrap 2.3 support...</blockquote>
         </div>
       </div>
 
+      <div class="row">
+        <div class="col-md-12">
+          <h1 id="Boostrap2">Boostrap 2.3</h1>
+          <p>
+            In addition, you can switch to Bootstrap 2.3 by calling the <code>Backform.bootstrap2</code> function.
+            It will change the class names automatically for you and call <code>bootstrap2</code> functions on any control under the Backfrom namespace, as some have to change their HTML markup.
+          </p>
+          <p>
+            <a href="bootstrap2.html" class="btn btn-primary">View Examples with Bootstrap 2.3</a>
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="col-md-2">
+      <div id="sidebar" class="bs-sidebar affix">
+        <ul class="nav bs-sidenav">
+          <li class="active"><a href="#Introduction">Introduction</a></li>
+          <li><a href="#Documentation">Documentation</a></li>
+          <li><a href="#Usage">&nbsp;&nbsp;Basic Usage</a></li>
+          <li><a href="#Fields">&nbsp;&nbsp;Fields</a></li>
+          <li><a href="#Controls">&nbsp;&nbsp;Controls</a></li>
+          <li><a href="#Validation">&nbsp;&nbsp;Validation</a></li>
+          <li><a href="#Markup">HTML Markup</a></li>
+          <li><a href="#Bootstrap2">Bootstrap 2.3</a></li>
+          <li><a href="https://github.com/AmiliaApp/backform/blob/gh-pages/src/backform.js" target="_blank">&lt;/&gt; View source</a></li>
+        </ul>
+      </div>
+
+    </div>
+    </div>
     </div>
     <br/>
 

@@ -1,0 +1,30 @@
+{
+  "name": "backform",
+  "main": [
+  "src/backform.js"
+  ],
+  "version": "0.2.1",
+  "homepage": "https://github.com/AmiliaApp/backform",
+  "author": {
+    "name": "Martin Drapeau",
+    "email": "martindrapeau@gmail.com"
+  },
+  "description": "Backform takes a Backbone model and transforms it into an HTML form",
+  "keywords": [
+    "backbone",
+    "form",
+    "underscore"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "backbone": "1.0.0 - 1.2.3",
+    "underscore": "1.4.4 - 1.8.x"
+  }
+}
