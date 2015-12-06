@@ -3,7 +3,7 @@
   "main": [
   "src/backform.js"
   ],
-  "version": "0.2.0",
+  "version": "0.2.1",
   "homepage": "https://github.com/AmiliaApp/backform",
   "author": {
     "name": "Martin Drapeau",
@@ -24,7 +24,7 @@
     "tests"
   ],
   "dependencies": {
-    "backbone": "1.0.0 - 1.1.2",
-    "underscore": "1.4.4 - 1.6.0"
+    "backbone": "1.0.0 - 1.2.3",
+    "underscore": "1.4.4 - 1.8.x"
   }
 }
